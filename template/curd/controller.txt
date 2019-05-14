@@ -1,0 +1,68 @@
+<?php
+
+namespace app\admin\controller;
+
+use app\model\{$model};
+
+class {$model}Controller extends AuthController
+{
+    public function {$minModel}List()
+    {
+        $req = request()->param();
+
+        $bulider = {$model}::order('id', 'desc');
+        {$cond}
+        $data = $bulider->paginate(['query' => $req]);
+
+        $this->assign('req', $req);
+        $this->assign('data', $data);
+
+        return $this->fetch();
+    }
+
+    public function show{$model}()
+    {
+        $req = request()->get();
+        $data = [];
+        if (!empty($req['id'])){
+            $data = {$model}::where('id', $req['id'])->find();
+        }
+        $this->assign('data', $data);
+
+        return $this->fetch();
+    }
+
+    public function add{$model}()
+    {
+        $req = request()->post();
+        $this->validate($req, [
+            {$validate}
+        ]);
+
+        {$model}::create($req);
+
+        return out();
+    }
+
+    public function edit{$model}()
+    {
+        $req = request()->post();
+        $this->validate($req, [
+            'id' => 'require|integer|>:0',
+            {$validate}
+        ]);
+
+        {$model}::where('id', $req['id'])->update($req);
+
+        return out();
+    }
+
+    public function change{$model}()
+    {
+        $req = request()->post();
+
+        {$model}::where('id', $req['id'])->update([$req['field'] => $req['value']]);
+
+        return out();
+    }
+}
