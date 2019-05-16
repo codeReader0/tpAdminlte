@@ -14,7 +14,7 @@ return [
     // 密码
     'password'        => Env::get('password'),
     // 数据库表前缀
-    'prefix'          => 'yh_',
+    'prefix'          => Env::get('prefix'),
     // 端口
     'hostport'        => '',
     // 连接dsn
