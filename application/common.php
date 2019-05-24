@@ -13,7 +13,8 @@ if (!function_exists('out')) {
 if (!function_exists('exit_out')) {
     function exit_out($data = null, $code = 200, $msg = 'success')
     {
-        header("Content-type: application/json; charset=utf-8");
-        exit(out($data, $code, $msg)->getContent());
+        $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
+        $msg = json_encode($out, JSON_UNESCAPED_UNICODE);
+        throw new \Exception($msg);
     }
 }
