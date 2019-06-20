@@ -29,7 +29,7 @@
 <script>
     $(function(){
         var url = "{:url('admin/{$model}/{$minModel}List')}";
-        $('a[href="'+url+'"]').parent().addClass('active');
+        $('a[href="'+url+'"]').parents('.menu-li').addClass('active');
         var headerText = $('a[href="'+url+'"]').children('span').text();
         var is_add = "<?php echo !empty($data) ? '0' : '1';?>";
         var headerTitle = is_add == "1" ? headerText + '-添加' : headerText + '-编辑';
