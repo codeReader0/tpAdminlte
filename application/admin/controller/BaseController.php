@@ -54,12 +54,7 @@ class BaseController extends Controller
         }
 
         if (!$v->check($data)) {
-            if ($this->failException) {
-                throw new ValidateException($v->getError());
-            }
-            else {
-                exit_out(null, 10000, $v->getError());
-            }
+            throw new ValidateException($v->getError());
         }
 
         return true;
