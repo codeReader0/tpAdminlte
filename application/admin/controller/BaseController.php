@@ -24,9 +24,19 @@ class BaseController extends Controller
      * @return array|string|true
      * @throws ValidateException
      */
-    protected function validate($data, $validate, $message = [], $batch = false, $callback = null)
+    protected function validate($data, $val, $message = [], $batch = false, $callback = null)
     {
-        if (is_array($validate)) {
+        $validate = $val;
+        $field_map = [];
+        if (is_array($val)) {
+            $validate = [];
+            foreach ($val as $k => $v){
+                $tmp = explode('|', $k);
+                $validate[$tmp[0]] = $v;
+                if (!empty($tmp[1])){
+                    $field_map[$tmp[0]] = $tmp[1];
+                }
+            }
             $v = $this->app->validate();
             $v->rule($validate);
         } else {
@@ -54,7 +64,17 @@ class BaseController extends Controller
         }
 
         if (!$v->check($data)) {
-            throw new ValidateException($v->getError());
+            $msg = $v->getError();
+            if (!empty($field_map)){
+                foreach ($field_map as $k => $v){
+                    if (strpos($msg, $k) !== false){
+                        $msg = str_replace($k, $v, $msg);
+                        break;
+                    }
+                }
+            }
+
+            throw new ValidateException($msg);
         }
 
         return true;

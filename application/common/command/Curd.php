@@ -101,11 +101,13 @@ class Curd extends Command
             }
 
             if (!empty($va)){
+                $commentArr = $this->convertComment($v1);
+                $comment = $commentArr[0];
                 if (empty($validate)){
-                    $validate = "'".$v1['name']."' => '".$va."',";
+                    $validate = "'".$v1['name']."|".$comment."' => '".$va."',";
                 }
                 else {
-                    $validate = $validate."\n\t\t\t'".$v1['name']."' => '".$va."',";
+                    $validate = $validate."\n\t\t\t'".$v1['name']."|".$comment."' => '".$va."',";
                 }
             }
         }
