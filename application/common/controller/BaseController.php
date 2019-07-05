@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: zilongs
- * Date: 19-4-22
- * Time: 下午5:11
+ * Date: 19-7-5
+ * Time: 下午4:07
  */
 
-namespace app\admin\controller;
+namespace app\common\controller;
 
 use think\Controller;
 use think\exception\ValidateException;

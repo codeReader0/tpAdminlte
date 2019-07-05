@@ -8,6 +8,7 @@
 
 namespace app\admin\controller;
 
+use app\common\controller\BaseController;
 use app\model\AdminUser;
 use think\facade\Session;
 

@@ -89,6 +89,9 @@ class Curd extends Command
             }
             elseif (strpos($v1['type'], 'int') !== false){
                 $va = 'integer';
+                if (strpos($v1['name'], 'id') !== false){
+                    $va = 'number';
+                }
             }
             elseif ($v1['type'] == 'float' || $v1['type'] == 'double' || $v1['type'] == 'decimal'){
                 $va = 'float';

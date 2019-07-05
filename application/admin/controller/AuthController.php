@@ -8,6 +8,7 @@
 
 namespace app\admin\controller;
 
+use app\common\controller\BaseController;
 use think\facade\Session;
 
 class AuthController extends BaseController
