@@ -13,7 +13,7 @@ class Curd extends Command
 {
     protected function configure()
     {
-        $this->setName('curd')->addOption('table', null, Option::VALUE_REQUIRED, '表名')->setDescription('一键生成增删改查操作');
+        $this->setName('curd')->addOption('table', null, Option::VALUE_REQUIRED, '表名')->setDescription('一键生成增删改查操作 命令：php think curd --table admin_user');
     }
 
     protected function execute(Input $input, Output $output)
