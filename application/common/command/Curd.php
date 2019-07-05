@@ -31,6 +31,9 @@ class Curd extends Command
 
         $sql = "select COLUMN_NAME name, DATA_TYPE type, CHARACTER_MAXIMUM_LENGTH lenght, COLUMN_COMMENT comment, COLUMN_KEY index_key from INFORMATION_SCHEMA.COLUMNS where table_schema = '".$database."' AND table_name = '".$table."'";
         $tmp = Db::query($sql);
+        if (empty($tmp)){
+            exit('table不存在'."\n");
+        }
         $table = str_replace($prefix, '', $table);
         $model = $this->convertUnderLine($table);
         $minModel = lcfirst($model);
