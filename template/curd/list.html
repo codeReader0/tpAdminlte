@@ -20,7 +20,10 @@
                             <?php foreach ($data as $k => $v){ ?>
                                 <tr>
                                     {$tbod}
-                                    <td><a class="btn btn-flat btn-info btn-xs" href="{:url('admin/{$model}/show{$model}', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a></td>
+                                    <td>
+                                        <a class="btn btn-flat btn-info btn-xs" href="{:url('admin/{$model}/show{$model}', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a>
+                                        <a class="btn btn-flat btn-danger btn-xs" href="javascript:;" onclick="del{$model}({$v['id']})"><i class="fa fa-trash-o"></i> 删除</a>
+                                    </td>
                                 </tr>
                             <?php }?>
                         </tbody>
@@ -33,6 +36,22 @@
 </div>
 
 <script>
+    function del{$model}(id)
+    {
+        //确认框
+        layer.confirm('确定删除吗？', {icon: 3, title:'提示'}, function(index) {
+            layer.close(index);
+            $.post('{:url("admin/{$model}/del{$model}")}', {id:id}, function (res) {
+                if (res.code == '200'){
+                    location.reload(true);
+                }
+                else {
+                    layer.msg(res.msg, {icon: 5, time: 3000});
+                }
+            });
+        });
+    }
+
     function change{$model}(id, field)
     {
         var value = 0;

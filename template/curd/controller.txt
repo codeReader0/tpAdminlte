@@ -48,7 +48,7 @@ class {$model}Controller extends AuthController
     {
         $req = request()->post();
         $this->validate($req, [
-            'id' => 'require|integer|>:0',
+            'id' => 'require|number',
             {$validate}
         ]);
 
@@ -62,6 +62,18 @@ class {$model}Controller extends AuthController
         $req = request()->post();
 
         {$model}::where('id', $req['id'])->update([$req['field'] => $req['value']]);
+
+        return out();
+    }
+
+    public function del{$model}()
+    {
+        $req = request()->post();
+        $this->validate($req, [
+            'id' => 'require|number'
+        ]);
+
+        {$model}::where('id', $req['id'])->delete();
 
         return out();
     }
