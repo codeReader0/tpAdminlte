@@ -6,7 +6,7 @@
                 <img src="__ADMIN__/img/logo.jpg" class="img-circle">
             </div>
             <div class="pull-left info">
-                <p>管理员</p>
+                <p><?php echo !empty(session('admin_user')['nickname']) ? session('admin_user')['nickname'] : session('admin_user')['account']; ?></p>
                 <i class="fa fa-circle text-success"></i> 在线
             </div>
         </div>
@@ -19,29 +19,36 @@
                     <span>主页</span>
                 </a>
             </li>
-            <li class="menu-li treeview <?php if (in_array($url, [url('admin/AdminUser/adminUserList'), url('admin/AuthGroup/authGroupList')])){ ?> active <?php }?>">
-                <a href="#">
-                    <i class="fa fa-users"></i>
-                    <span>后台账号及角色管理</span>
-                    <span class="pull-right-container">
+            <?php foreach (config('menu.') as $k => $v){ ?>
+                <?php if (is_array($v)){ $actionArr = []; foreach ($v as $k1 => $v1){ $actionArr[] = url($v1); } ?>
+                    <li class="menu-li treeview <?php if (in_array($url, $actionArr)){ ?> active <?php }?>">
+                        <a href="#">
+                            <i class="fa fa-users"></i>
+                            <span>{$k}</span>
+                            <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li class="menu-li">
-                        <a href="{:url('admin/AdminUser/adminUserList')}">
-                            <i class="fa fa-circle-o"></i>
-                            <span>账号管理</span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <?php foreach ($v as $k1 => $v1){ ?>
+                                <li class="menu-li">
+                                    <a href="{:url($v1)}">
+                                        <i class="fa fa-circle-o"></i>
+                                        <span>{$k1}</span>
+                                    </a>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                <?php } else { ?>
+                    <li <?php if ($url == url($v)){ ?> class="active" <?php }?>>
+                        <a href="{:url($v)}">
+                            <i class="fa fa-user"></i>
+                            <span>{$k}</span>
                         </a>
                     </li>
-                    <li class="menu-li">
-                        <a href="{:url('admin/AuthGroup/authGroupList')}">
-                            <i class="fa fa-circle-o"></i>
-                            <span>角色管理</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+                <?php } ?>
+            <?php } ?>
         </ul>
     </section>
 
