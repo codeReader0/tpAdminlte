@@ -221,7 +221,21 @@ class Curd extends Command
         $content = str_replace($search, $replace, $content);
         $this->createPathFile($path, $file, $content);
 
+        //生成菜单
+        $this->buildMenu($model);
+
         echo '创建成功'."\n";
+    }
+
+    //生成菜单
+    private function buildMenu($model)
+    {
+        $menu = config('menu.');
+        $menu['请改名称'.$model] = 'admin/'.$model.'/'.$model.'List';
+        $str = var_export($menu, true);
+        $path = Env::get('root_path').'/config';
+        $str = '<?php'."\n"."\n".'return '.$str.';'."\n";
+        $this->createPathFile($path, 'menu.php', $str);
     }
 
     //将下划线命名转换为驼峰式命名
