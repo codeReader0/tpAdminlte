@@ -20,20 +20,20 @@
                 </a>
             </li>
             <?php foreach (config('menu.') as $k => $v){ ?>
-                <?php if (is_array($v)){ $actionArr = []; foreach ($v as $k1 => $v1){ $actionArr[] = url($v1); } ?>
+                <?php if (is_array($v['url'])){ $actionArr = []; foreach ($v['url'] as $k1 => $v1){ $actionArr[] = url($v1['url']); } ?>
                     <li class="menu-li treeview <?php if (in_array($url, $actionArr)){ ?> active <?php }?>">
                         <a href="#">
-                            <i class="fa fa-users"></i>
+                            <i class="fa {$v['icon']}"></i>
                             <span>{$k}</span>
                             <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                         </a>
                         <ul class="treeview-menu">
-                            <?php foreach ($v as $k1 => $v1){ ?>
+                            <?php foreach ($v['url'] as $k1 => $v1){ ?>
                                 <li class="menu-li">
-                                    <a href="{:url($v1)}">
-                                        <i class="fa fa-circle-o"></i>
+                                    <a href="{:url($v1['url'])}">
+                                        <i class="fa {$v1['icon']}"></i>
                                         <span>{$k1}</span>
                                     </a>
                                 </li>
@@ -41,9 +41,9 @@
                         </ul>
                     </li>
                 <?php } else { ?>
-                    <li <?php if ($url == url($v)){ ?> class="active" <?php }?>>
-                        <a href="{:url($v)}">
-                            <i class="fa fa-user"></i>
+                    <li class="menu-li <?php if ($url == url($v['url'])){ ?> active <?php }?>">
+                        <a href="{:url($v['url'])}">
+                            <i class="fa {$v['icon']}"></i>
                             <span>{$k}</span>
                         </a>
                     </li>
