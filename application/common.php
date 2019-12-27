@@ -54,12 +54,16 @@ if (!function_exists('exit_out')) {
 if (!function_exists('auth_show_judge')) {
     function auth_show_judge($path, $is_return_bool = false)
     {
-        $auth = new Auth();
-        if(!$auth->check($path, session('admin_user')['id'])){
-            return $is_return_bool ? false : 'style="display: none;"';
+        if (config('is_open_auth')){
+            $auth = new Auth();
+            if(!$auth->check($path, session('admin_user')['id'])){
+                return $is_return_bool ? false : 'style="display: none;"';
+            }
+
+            return $is_return_bool ? true : '';
         }
 
-        return $is_return_bool ? true : '';
+        return true;
     }
 }
 
