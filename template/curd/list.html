@@ -2,7 +2,7 @@
     <form class="form-inline">
         {$search}
         <input class="btn btn-flat btn-primary m_10" type="submit" value="搜索">
-        <a class="btn btn-flat btn-success m_10 f_r" href="{:url('admin/{$model}/show{$model}')}"><i class="fa fa-plus m-r-10"></i>添 加</a>
+        <a {:auth_show_judge('{$model}/add{$model}')} class="btn btn-flat btn-success m_10 f_r" href="{:url('admin/{$model}/show{$model}')}"><i class="fa fa-plus m-r-10"></i>添 加</a>
     </form>
 </div>
 
@@ -21,8 +21,8 @@
                                 <tr>
                                     {$tbod}
                                     <td>
-                                        <a class="btn btn-flat btn-info btn-xs" href="{:url('admin/{$model}/show{$model}', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a>
-                                        <a class="btn btn-flat btn-danger btn-xs" href="javascript:;" onclick="del{$model}({$v['id']})"><i class="fa fa-trash-o"></i> 删除</a>
+                                        <a {:auth_show_judge('{$model}/edit{$model}')} class="btn btn-flat btn-info btn-xs" href="{:url('admin/{$model}/show{$model}', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a>
+                                        <a {:auth_show_judge('{$model}/del{$model}')} class="btn btn-flat btn-danger btn-xs" href="javascript:;" onclick="del{$model}({$v['id']})"><i class="fa fa-trash-o"></i> 删除</a>
                                     </td>
                                 </tr>
                             <?php }?>
