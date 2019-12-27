@@ -13,13 +13,7 @@
         <?php $url = request()->baseUrl(); ?>
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">主导航</li>
-            <li <?php if ($url == url('admin/Home/index')){ ?> class="active" <?php }?>>
-                <a href="{:url('admin/Home/index')}">
-                    <i class="fa fa-home"></i>
-                    <span>主页</span>
-                </a>
-            </li>
-            <?php foreach (config('menu.') as $k => $v){ ?>
+            <?php $authMenuNavigation = auth_show_navigation(); foreach ($authMenuNavigation as $k => $v){ ?>
                 <?php if (is_array($v['url'])){ $actionArr = []; foreach ($v['url'] as $k1 => $v1){ $actionArr[] = url($v1['url']); } ?>
                     <li class="menu-li treeview <?php if (in_array($url, $actionArr)){ ?> active <?php }?>">
                         <a href="#">

@@ -10,9 +10,9 @@ class {$model}Controller extends AuthController
     {
         $req = request()->param();
 
-        $bulider = {$model}::order('id', 'desc');
+        $builder = {$model}::order('id', 'desc');
         {$cond}
-        $data = $bulider->paginate(['query' => $req]);
+        $data = $builder->paginate(['query' => $req]);
 
         $this->assign('req', $req);
         $this->assign('data', $data);

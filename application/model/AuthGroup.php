@@ -4,7 +4,7 @@ namespace app\model;
 
 use think\Model;
 
-class AdminUser extends Model
+class AuthGroup extends Model
 {
     public function getCreateDateAttr($value, $data)
     {
@@ -15,10 +15,5 @@ class AdminUser extends Model
     {
         $map = [0 => '禁用',1 => '正常',];
         return $map[$data['status']];
-    }
-
-    public function authGroup()
-    {
-        return $this->belongsToMany('authGroup', 'auth_group_access', 'auth_group_id', 'admin_user_id');
     }
 }

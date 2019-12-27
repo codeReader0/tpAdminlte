@@ -21,12 +21,12 @@
                     <li class="dropdown user user-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <img src="__ADMIN__/img/logo.jpg" class="user-image">
-                            <span class="hidden-xs">管理员</span>
+                            <span class="hidden-xs">{:session('admin_user')['nickname']}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <li class="user-header">
                                 <img src="__ADMIN__/img/logo.jpg" class="img-circle">
-                                <h4>管理员</h4>
+                                <h4>{:session('admin_user')['nickname']}</h4>
                             </li>
                             <li class="user-body">
                                 <div class="pull-left">
@@ -60,6 +60,17 @@
     $('a[href="'+url+'"]').parent().addClass('active');
     var headerTitle = $('a[href="'+url+'"]').children('span').text();
     $('#content-header-title').text(headerTitle);
+
+    function updatePassword()
+    {
+        var url = "{:url('admin/AdminUser/showUpdatePassword')}";
+        layer.open({
+            type: 2,
+            title: '修改密码',
+            area: ['60%', '45%'], //宽高
+            content: url
+        });
+    }
 </script>
 </body>
 </html>
