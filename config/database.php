@@ -14,7 +14,7 @@ return [
     // 密码
     'password'        => Env::get('password'),
     // 数据库表前缀
-    'prefix'          => Env::get('prefix'),
+    'prefix'          => Env::get('prefix', ''),
     // 端口
     'hostport'        => '',
     // 连接dsn
@@ -22,7 +22,7 @@ return [
     // 数据库连接参数
     'params'          => [],
     // 数据库编码默认采用utf8
-    'charset'         => 'utf8',
+    'charset'         => 'utf8mb4',
     // 数据库调试模式
     'debug'           => false,
     // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
