@@ -37,6 +37,7 @@ class Curd extends Command
         $table = str_replace($prefix, '', $table);
         $model = $this->convertUnderLine($table);
         $minModel = lcfirst($model);
+        $lineModel = $this->uncamelize($model);
 
         //创建model
         $path = Env::get('root_path').'/application/model';
@@ -45,17 +46,16 @@ class Curd extends Command
         $content = file_get_contents($template);
 
         $attr = '';
+        $configMap = config('map.');
         foreach ($tmp as $k1 => $v1){
             $commentArr = $this->convertComment($v1);
             if ($commentArr[2] > 0){
                 $underName = $this->convertUnderLine($v1['name']);
-                $map = $commentArr[1];
-                $mapText = '[';
-                foreach ($map as $k2 => $v2){
-                    $mapText = $mapText.$k2.' => '.'\''.$v2.'\',';
-                }
-                $mapText = $mapText.']';
-                $attr = $attr."\n".'public function get'.$underName.'TextAttr($value, $data)'."\n".'{'."\n".'$map = '.$mapText.';'."\n".'return $map[$data[\''.$v1['name'].'\']];'."\n".'}';
+                $field = $v1['name'].'_map';
+                $configMap[$lineModel][$field] = $commentArr[1];
+                $this->buildMap($configMap);
+                $mapText = 'config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\']';
+                $attr = $attr."\n"."\n".'public function get'.$underName.'TextAttr($value, $data)'."\n".'{'."\n".'$map = '.$mapText.';'."\n".'return $map[$data[\''.$v1['name'].'\']];'."\n".'}';
             }
         }
 
@@ -73,37 +73,39 @@ class Curd extends Command
         foreach ($tmp as $k1 => $v1){
             //搜索条件
             if (!empty($v1['index_key'])){
-                $condKey = $v1['name'] == 'id' ? $minModel.'_id' : $v1['name'];
-                $cond = $cond.'if (isset($req[\''.$condKey.'\']) && $req[\''.$condKey.'\'] !== \'\'){'."\n".'$bulider->where(\''.$v1['name'].'\', $req[\''.$condKey.'\']);'."\n".'}'."\n";
+                $condKey = $v1['name'] == 'id' ? $lineModel.'_id' : $v1['name'];
+                $cond = $cond.'if (isset($req[\''.$condKey.'\']) && $req[\''.$condKey.'\'] !== \'\'){'."\n".'$builder->where(\''.$v1['name'].'\', $req[\''.$condKey.'\']);'."\n".'}'."\n";
             }
 
-            if ($v1['name'] == 'id' || $v1['name'] == 'create_time' || $v1['name'] == 'update_time'){
+            if ($v1['name'] == 'id' || $v1['name'] == 'create_time' || $v1['name'] == 'update_time'|| $v1['name'] == 'delete_time'){
                 continue;
             }
-            $va = '';
+            $va = 'require';
             if ($v1['name'] == 'phone'){
-                $va = 'mobile';
+                $va .= '|mobile';
             }
             elseif ($v1['name'] == 'email'){
-                $va = 'email';
+                $va .= '|email';
             }
             elseif (strpos($v1['name'], 'url') !== false){
-                $va = 'url';
+                $va .= '|url';
             }
             elseif (strpos($v1['type'], 'int') !== false){
-                $va = 'integer';
                 if (strpos($v1['name'], 'id') !== false){
-                    $va = 'number';
+                    $va .= '|number';
+                }
+                else {
+                    $va .= '|integer';
                 }
             }
             elseif ($v1['type'] == 'float' || $v1['type'] == 'double' || $v1['type'] == 'decimal'){
-                $va = 'float';
+                $va .= '|float';
             }
             elseif (strpos($v1['type'], 'time') !== false){
-                $va = 'date';
+                $va .= '|date';
             }
             elseif(strpos($v1['type'], 'char') !== false) {
-                $va = 'max:'.$v1['lenght'];
+                $va .= '|max:'.$v1['lenght'];
             }
 
             if (!empty($va)){
@@ -158,13 +160,9 @@ class Curd extends Command
                 $comment = $commentArr[0];
                 $input_type = $commentArr[2];
                 if ($input_type > 0){
-                    $map = $commentArr[1];
-                    $option = '<option value="">搜索'.$comment.'</option>'."\n";
-                    foreach ($map as $k2 => $v2){
-                        $option = $option.'<option <?php if (isset($req[\''.$v1['name'].'\']) && $req[\''.$v1['name'].'\'] === \''.$k2.'\'){echo \'selected = "selected"\';} ?> value="'.$k2.'">'.$v2.'</option>'."\n";
-                    }
+                    $option = '<option value="">搜索'.$comment.'</option>'."\n".'<?php foreach (config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\'] as $k => $v) { ?>'."\n".'<option <?php if (isset($req[\''.$v1['name'].'\']) && $req[\''.$v1['name'].'\'] == $k){echo \'selected = "selected"\';} ?> value="{$k}">{$v}</option>'."\n".'<?php } ?>';
 
-                    $search = $search."\n".'<select name="'.$v1['name'].'" class="form-control">'."\n".$option.'</select>';
+                    $search = $search."\n".'<select name="'.$v1['name'].'" class="form-control">'."\n".$option."\n".'</select>';
                 }
                 else {
                     $condKey = $v1['name'] == 'id' ? $minModel.'_id' : $v1['name'];
@@ -192,13 +190,8 @@ class Curd extends Command
             $input_type = $commentArr[2];
 
             if ($input_type == 1){
-                $map = $commentArr[1];
-                $select = '';
-                foreach ($map as $k2 => $v2){
-                    $select = $select.'<option <?php if(isset($data[\''.$v1['name'].'\']) && $data[\''.$v1['name'].'\'] == \''.$k2.'\'){ ?> selected="selected" <?php } ?> value="'.$k2.'">'.$v2.'</option>'."\n";
-                }
-
-                $html = '<div class="row dd_input_group">'."\n".'<div class="form-group">'."\n".'<label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">'.$comment.'</label>'."\n".'<div class="col-xs-8 col-sm-6 col-md-4 col-lg-4">'."\n".'<select name="'.$v1['name'].'" class="form-control">'."\n".$select.'</select>'."\n".'</div>'."\n".'<div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 dd_ts">*</div>'."\n".'</div>'."\n".'</div>';
+                $select = '<?php foreach (config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\'] as $k => $v) { ?>'."\n".'<option <?php if(isset($data[\''.$v1['name'].'\']) && $data[\''.$v1['name'].'\'] == $k){ ?> selected="selected" <?php } ?> value="{$k}">{$v}</option>'."\n".'<?php } ?>';
+                $html = '<div class="row dd_input_group">'."\n".'<div class="form-group">'."\n".'<label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">'.$comment.'</label>'."\n".'<div class="col-xs-8 col-sm-6 col-md-4 col-lg-4">'."\n".'<select name="'.$v1['name'].'" class="form-control">'."\n".$select."\n".'</select>'."\n".'</div>'."\n".'<div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 dd_ts">*</div>'."\n".'</div>'."\n".'</div>';
             }
             elseif($input_type == 2) {
                 $map = $commentArr[1];
@@ -239,6 +232,15 @@ class Curd extends Command
         $this->createPathFile($path, 'menu.php', $str);
     }
 
+    //生成map
+    private function buildMap($map)
+    {
+        $str = var_export($map, true);
+        $path = Env::get('root_path').'/config';
+        $str = '<?php'."\n"."\n".'return '.$str.';'."\n";
+        $this->createPathFile($path, 'map.php', $str);
+    }
+
     //将下划线命名转换为驼峰式命名
     private function convertUnderLine($str, $ucfirst = true)
     {
@@ -247,6 +249,12 @@ class Curd extends Command
         $str = str_replace(' ','',lcfirst($str));
 
         return $ucfirst ? ucfirst($str) : $str;
+    }
+
+    //将驼峰式命名转换为下划线命名
+    function uncamelize($camelCaps, $separator = '_')
+    {
+        return strtolower(preg_replace('/([a-z])([A-Z])/', "$1" . $separator . "$2", $camelCaps));
     }
 
     //创建路径文件当遇到不存在的路径就新建文件夹

@@ -9,7 +9,5 @@ class {$model} extends Model
     public function getCreateDateAttr($value, $data)
     {
         return date('Y-m-d H:i', $data['create_time']);
-    }
-
-    {$attr}
+    }{$attr}
 }

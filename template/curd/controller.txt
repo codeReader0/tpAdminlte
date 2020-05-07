@@ -22,7 +22,7 @@ class {$model}Controller extends AuthController
 
     public function show{$model}()
     {
-        $req = request()->get();
+        $req = request()->param();
         $data = [];
         if (!empty($req['id'])){
             $data = {$model}::where('id', $req['id'])->find();
@@ -73,7 +73,7 @@ class {$model}Controller extends AuthController
             'id' => 'require|number'
         ]);
 
-        {$model}::where('id', $req['id'])->delete();
+        {$model}::destroy($req['id']);
 
         return out();
     }
