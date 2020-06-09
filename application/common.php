@@ -5,6 +5,8 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use app\model\AuthRule;
 use app\model\AdminHandleLog;
+use app\common\exception\ExitOutException;
+
 //统一输出格式话的json数据
 if (!function_exists('out')) {
     function out($data = null, $code = 200, $msg = 'success')
@@ -47,7 +49,7 @@ if (!function_exists('exit_out')) {
     {
         $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
         $msg = json_encode($out, JSON_UNESCAPED_UNICODE);
-        throw new \Exception($msg);
+        throw new ExitOutException($msg);
     }
 }
 

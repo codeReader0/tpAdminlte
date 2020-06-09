@@ -14,6 +14,10 @@ use think\exception\ValidateException;
 
 class Http extends Handle
 {
+    protected $ignoreReport = [
+        '\\app\\common\\exception\\ExitOutException',
+    ];
+
     public function render(Exception $e)
     {
         //参数验证错误
@@ -22,15 +26,16 @@ class Http extends Handle
             return json($out);
         }
 
-        $msg = $e->getMessage();
-        $out = json_decode($msg, true);
-        if (!$out || !is_array($out) || empty($out['code'])){
+        //自定义异常错误
+        if ($e instanceof ExitOutException) {
             $msg = $e->getMessage();
-            if (!config('app_debug')){
-                $msg = '抱歉，服务异常～';
+            $out = json_decode($msg, true);
+            if (!empty($out)) {
+                return json($out);
             }
-            $out = ['code' => 500, 'msg' => $msg, 'data' => null];
         }
+
+        $out = ['code' => 500, 'msg' => $e->getMessage(), 'data' => null];
 
         return json($out);
     }
