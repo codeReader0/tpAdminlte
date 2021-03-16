@@ -153,3 +153,67 @@ if (!function_exists('create_excel')) {
         exit;
     }
 }
+
+//AES加密
+if (!function_exists('aes_encrypt')) {
+    function aes_encrypt($data)
+    {
+        if (is_array($data)) {
+            $data = json_encode($data, JSON_UNESCAPED_UNICODE);
+        }
+        $key = config('aes_key');
+        $iv  = config('aes_iv');
+
+        $cipher_text = openssl_encrypt($data, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        $cipher_text = base64_encode($cipher_text);
+
+        return urlencode($cipher_text);
+    }
+}
+
+//AES解密
+if (!function_exists('aes_decrypt')) {
+    function aes_decrypt($encryptData)
+    {
+        $encryptData = urldecode($encryptData);
+        $encryptData = base64_decode($encryptData);
+
+        $key = config('aes_key');
+        $iv  = config('aes_iv');
+
+        $original_plaintext = openssl_decrypt($encryptData, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+        return json_decode($original_plaintext, true);
+    }
+}
+
+//上传文件
+if (!function_exists('upload_file')) {
+    function upload_file($name, $is_must = true, $is_return_url = true)
+    {
+        if (!empty(request()->file()[$name])){
+            $file = request()->file()[$name];
+            $move_path = env('root_path').'public/uploads';
+            $info = $file->move($move_path);
+
+            if ($is_return_url){
+                $img_url = request()->domain().'/uploads/'.$info->getSaveName();
+                if (!empty(env('img_domain', ''))) {
+                    $img_url = env('img_domain').'/uploads/'.$info->getSaveName();
+                }
+            }
+            else {
+                $img_url = $move_path.'/'.$info->getSaveName();
+            }
+
+            return $img_url;
+        }
+        else {
+            if ($is_must){
+                exit_out(null, 11002, '文件不能为空');
+            }
+        }
+
+        return '';
+    }
+}

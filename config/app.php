@@ -132,4 +132,7 @@ return [
     // 异常处理handle类 留空使用 \think\exception\Handle
     'exception_handle'       => '\\app\\common\\exception\\Http',
 
+    //token加密的key和iv
+    'aes_key' => 'aEJwbf5w8Abbhr1g',
+    'aes_iv' => 'sfX9ReOCct22CEUf',
 ];
