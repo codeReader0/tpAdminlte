@@ -9,7 +9,7 @@ use app\common\exception\ExitOutException;
 
 //统一输出格式话的json数据
 if (!function_exists('out')) {
-    function out($data = null, $code = 200, $msg = 'success')
+    function out($data = null, $code = 200, $msg = 'success', $exceptionData = false)
     {
         $req = request()->param();
         $module = request()->module();
@@ -40,15 +40,25 @@ if (!function_exists('out')) {
 
         $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
 
+        if ($exceptionData !== false) {
+            trace([$msg => $exceptionData], 'error');
+        }
+
         return json($out);
     }
 }
 
 if (!function_exists('exit_out')) {
-    function exit_out($data = null, $code = 200, $msg = 'success')
+    function exit_out($data = null, $code = 200, $msg = 'success', $exceptionData = false)
     {
         $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
+
+        if ($exceptionData !== false) {
+            trace([$msg => $exceptionData], 'error');
+        }
+
         $msg = json_encode($out, JSON_UNESCAPED_UNICODE);
+
         throw new ExitOutException($msg);
     }
 }

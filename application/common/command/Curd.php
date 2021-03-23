@@ -77,7 +77,7 @@ class Curd extends Command
                 $cond = $cond.'if (isset($req[\''.$condKey.'\']) && $req[\''.$condKey.'\'] !== \'\'){'."\n".'$builder->where(\''.$v1['name'].'\', $req[\''.$condKey.'\']);'."\n".'}'."\n";
             }
 
-            if ($v1['name'] == 'id' || $v1['name'] == 'create_time' || $v1['name'] == 'update_time'|| $v1['name'] == 'delete_time'){
+            if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at', 'delete_time'])) {
                 continue;
             }
             $va = 'require';
@@ -133,7 +133,7 @@ class Curd extends Command
         $tbod = '';
         $search = '';
         foreach ($tmp as $k1 => $v1){
-            if ($v1['name'] == 'update_time'){
+            if (in_array($v1['name'], ['update_time', 'update_at'])){
                 continue;
             }
             $commentArr = $this->convertComment($v1);
@@ -165,7 +165,7 @@ class Curd extends Command
                     $search = $search."\n".'<select name="'.$v1['name'].'" class="form-control">'."\n".$option."\n".'</select>';
                 }
                 else {
-                    $condKey = $v1['name'] == 'id' ? $minModel.'_id' : $v1['name'];
+                    $condKey = $v1['name'] == 'id' ? $lineModel.'_id' : $v1['name'];
                     $search = $search."\n".'<input type="text" value="{$req[\''.$condKey.'\']??\'\'}" name="'.$condKey.'" placeholder="搜索'.$comment.'" class="form-control">';
                 }
             }
@@ -182,7 +182,7 @@ class Curd extends Command
         $content = file_get_contents($template);
         $ele = '';
         foreach ($tmp as $k1 => $v1){
-            if ($v1['name'] == 'update_time' || $v1['name'] == 'create_time' || $v1['name'] == 'id'){
+            if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at'])) {
                 continue;
             }
             $commentArr = $this->convertComment($v1);

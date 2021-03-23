@@ -41,22 +41,6 @@
                 </div>
                 <div class="row dd_input_group">
                     <div class="form-group">
-                        <label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">状态</label>
-                        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-4">
-                            <div class="dd_radio_lable_left">
-                                <label class="dd_radio_lable">
-                                    <input <?php if(isset($data['status']) && $data['status'] == '0'){ ?> checked <?php } ?> type="radio" name="status" value="0" class="dd_radio"><span>禁用</span>
-                                </label>
-                                <label class="dd_radio_lable">
-                                    <input <?php if(isset($data['status']) && $data['status'] == '1'){ ?> checked <?php } ?> type="radio" name="status" value="1" class="dd_radio"><span>正常</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-xs-1 col-sm-4 col-md-6 col-lg-6 dd_ts"> *</div>
-                    </div>
-                </div>
-                <div class="row dd_input_group">
-                    <div class="form-group">
                         <label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">角色</label>
                         <div class="col-xs-7 col-sm-6 col-md-4 col-lg-4">
                             <select name="auth_group_id" class="form-control">

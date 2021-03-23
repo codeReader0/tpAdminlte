@@ -56,7 +56,6 @@ class AdminUserController extends AuthController
             'account|账号' => 'require|max:50|unique:admin_user',
             'password|密码' => 'require|max:100',
             'nickname|昵称' => 'require|max:50',
-            'status|状态' => 'require|number',
             'auth_group_id|角色' => 'require|number',
         ]);
 
@@ -76,7 +75,6 @@ class AdminUserController extends AuthController
             'account|账号' => 'require|max:50|unique:admin_user',
             'password|密码' => 'max:100',
             'nickname|昵称' => 'require|max:50',
-            'status|状态' => 'require|integer',
             'auth_group_id|角色' => 'require|number',
         ]);
 

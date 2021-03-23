@@ -8,6 +8,7 @@
 
 namespace app\common\command;
 
+use app\model\AdminUser;
 use app\model\AuthGroup;
 use app\model\AuthGroupAccess;
 use app\model\AuthRule;
@@ -83,7 +84,15 @@ class Rule extends Command
             ],
         ];
 
-        db()->execute('TRUNCATE fs_auth_rule');
+        db()->execute('TRUNCATE '.config('database.prefix').'auth_rule');
+
+        if (!AdminUser::where('id', 1)->count()) {
+            AdminUser::create([
+                'account' => '111111',
+                'password' => md5(sha1('111111')),
+                'nickname' => '超级管理员',
+            ]);
+        }
 
         $authRule = new AuthRule();
         $authRule->saveAll($list);
