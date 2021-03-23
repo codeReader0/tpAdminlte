@@ -13,14 +13,14 @@
 - 会根据数据库的索引自动生成列表搜索条件
 - 会根据字段类型生成控制器验证模型
 - 生成的完全是基于thinkphp5.1和adminlte2.4 的控制器，模型，以及页面(基于jquery和bootstrap) 生成后可随意改动
-- 如果是phpstorm 那么control + alt + i 可以格式化自动生成的代码
+- 如果是phpstorm 那么control + alt + i (mac是：command + option + l)可以格式化自动生成的代码
 
 ## **后续支持**
 - 一键生成api文档 根据数据库里面字段的注释
 - 一键生成数据库字典
+- 图片，富文本，时间，大内容
 
 ## **下载安装**
 - 将代码clone下来，在根目录执行composer install
 - 根据.env.example示例创建.env文件
-- 创建你的数据库数据表 按照上文说的进行 注意：必须创建: 表前缀_admin_user  表用来登录，至少要有字段：account,password,status  具体可看:application->admin->controller->CommonController中的login方法进行更改
-- 在application->admin->view->left.html 中添加对应生成的表的菜单项
+- 运行根目录下的init.sql

@@ -296,7 +296,7 @@ class Curd extends Command
                         foreach ($commentContentArr as $k2 => $v2){
                             $v2Arr = explode('.', trim($v2));
                             $mapKey = trim($v2Arr[0]);
-                            if (!empty(trim($v2Arr[1]))){
+                            if (isset($v2Arr[1])){
                                 $mapValue = trim($v2Arr[1]);
                                 $map[$mapKey] = $mapValue;
                             }
