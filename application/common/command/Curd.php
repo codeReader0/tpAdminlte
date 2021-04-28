@@ -34,6 +34,8 @@ class Curd extends Command
         if (empty($tmp)){
             exit('table不存在'."\n");
         }
+
+        $db_table = $table;
         $table = str_replace($prefix, '', $table);
         $model = $this->convertUnderLine($table);
         $minModel = lcfirst($model);
@@ -217,6 +219,9 @@ class Curd extends Command
         //生成菜单
         $this->buildMenu($model);
 
+        //生成权限
+        $this->buildRule($db_table, $model, $minModel);
+
         echo '创建成功'."\n";
     }
 
@@ -314,5 +319,44 @@ class Curd extends Command
         }
 
         return [$comment, $map, $input_type];
+    }
+
+    //生成权限
+    private function buildRule($db_table, $model, $minModel)
+    {
+        $database = config('database.database');
+        $sql = "SELECT TABLE_NAME,TABLE_COMMENT FROM information_schema.TABLES WHERE table_schema='".$database."' and TABLE_NAME = '".$db_table."'";
+        $tmp = Db::query($sql);
+        $title = str_replace('表', '', $tmp[0]['TABLE_COMMENT']);
+        $menu_title = $title.'管理';
+
+        $rule = config('rule.');
+        $rule[$menu_title] = [
+            [
+                'name' => $model.'/'.$minModel.'List',
+                'title' => '查看'.$title.'列表',
+            ],
+            [
+                'name' => $model.'/add'.$model,
+                'title' => '添加'.$title,
+            ],
+            [
+                'name' => $model.'/edit'.$model,
+                'title' => '编辑'.$title,
+            ],
+            [
+                'name' => $model.'/del'.$model,
+                'title' => '删除'.$title,
+            ],
+            [
+                'name' => $model.'/change'.$model,
+                'title' => '改变'.$title.'状态',
+            ],
+        ];
+
+        $str = var_export($rule, true);
+        $path = Env::get('root_path').'/config';
+        $str = '<?php'."\n"."\n".'return '.$str.';'."\n";
+        $this->createPathFile($path, 'rule.php', $str);
     }
 }

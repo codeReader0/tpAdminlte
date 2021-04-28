@@ -15,6 +15,7 @@ use app\model\AuthRule;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
+use think\Db;
 
 class Rule extends Command
 {
@@ -25,66 +26,30 @@ class Rule extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $list = [
-            [
-                'name' => 'AdminUser',
-                'title' => '后台账号及角色管理',
-                'status' => 2,
-                'type' => 1,
-            ],
-            [
-                'name' => 'AdminUser/adminUserList',
-                'title' => '查看后台账号列表',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AdminUser/addAdminUser',
-                'title' => '添加后台用户',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AdminUser/editAdminUser',
-                'title' => '编辑后台用户',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AdminUser/delAdminUser',
-                'title' => '删除后台用户',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AdminUser/changeAdminUser',
-                'title' => '改变后台用户状态',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AuthGroup/authGroupList',
-                'title' => '查看角色权限管理列表',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AuthGroup/addAuthGroup',
-                'title' => '添加后台角色',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AuthGroup/editAuthGroup',
-                'title' => '编辑后台角色',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AuthGroup/delAuthGroup',
-                'title' => '删除后台角色',
-                'type' => '1',
-            ],
-            [
-                'name' => 'AuthGroup/submitAssignAuth',
-                'title' => '分配角色权限',
-                'type' => '1',
-            ],
-        ];
+        Db::execute('TRUNCATE '.config('database.prefix').'auth_rule');
 
-        db()->execute('TRUNCATE '.config('database.prefix').'auth_rule');
+        $rule = config('rule.');
+        $i = 1;
+        $list = [];
+        foreach ($rule as $k => $v) {
+            $arr = explode('/', $v[0]['name']);
+            $list[] = [
+                'name' => strtolower($arr[0]),
+                'title' => $k,
+                'status' => 2,
+                'type' => $i,
+            ];
+            foreach ($v as $k1 => $v1) {
+                $list[] = [
+                    'name' => strtolower($v1['name']),
+                    'title' => $v1['title'],
+                    'status' => 1,
+                    'type' => $i,
+                ];
+            }
+
+            $i++;
+        }
 
         if (!AdminUser::where('id', 1)->count()) {
             AdminUser::create([
@@ -97,7 +62,7 @@ class Rule extends Command
         $authRule = new AuthRule();
         $authRule->saveAll($list);
 
-        $authRuleArray = AuthRule::where('status', 1)->column('id');
+        $authRuleArray = AuthRule::where('status', 1)->column('name');
         $rules = json_encode($authRuleArray);
 
         if($authGroup = AuthGroup::get(1)) {

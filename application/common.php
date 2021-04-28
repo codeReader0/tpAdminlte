@@ -1,6 +1,6 @@
 <?php
 
-use auth\Auth;
+use app\model\AdminUser;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use app\model\AuthRule;
@@ -9,7 +9,7 @@ use app\common\exception\ExitOutException;
 
 //统一输出格式话的json数据
 if (!function_exists('out')) {
-    function out($data = null, $code = 200, $msg = 'success', $exceptionData = false)
+    function out($data = null, $code = 200, $msg = 'success', $e = false)
     {
         $req = request()->param();
         $module = request()->module();
@@ -40,8 +40,14 @@ if (!function_exists('out')) {
 
         $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
 
-        if ($exceptionData !== false) {
-            trace([$msg => $exceptionData], 'error');
+        if ($e !== false) {
+            if ($e instanceof Exception) {
+                $errMsg = $e->getFile().'文件第'.$e->getLine().'行错误：'.$e->getMessage();
+                trace([$msg => $errMsg], 'error');
+            }
+            else {
+                trace([$msg => $e], 'error');
+            }
         }
 
         return json($out);
@@ -49,12 +55,18 @@ if (!function_exists('out')) {
 }
 
 if (!function_exists('exit_out')) {
-    function exit_out($data = null, $code = 200, $msg = 'success', $exceptionData = false)
+    function exit_out($data = null, $code = 200, $msg = 'success', $e = false)
     {
         $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
 
-        if ($exceptionData !== false) {
-            trace([$msg => $exceptionData], 'error');
+        if ($e !== false) {
+            if ($e instanceof Exception) {
+                $errMsg = $e->getFile().'文件第'.$e->getLine().'行错误：'.$e->getMessage();
+                trace([$msg => $errMsg], 'error');
+            }
+            else {
+                trace([$msg => $e], 'error');
+            }
         }
 
         $msg = json_encode($out, JSON_UNESCAPED_UNICODE);
@@ -67,8 +79,7 @@ if (!function_exists('auth_show_judge')) {
     function auth_show_judge($path, $is_return_bool = false)
     {
         if (config('is_open_auth')){
-            $auth = new Auth();
-            if(!$auth->check($path, session('admin_user')['id'])){
+            if (!AdminUser::checkAuth(session('admin_user')['id'], $path)) {
                 return $is_return_bool ? false : 'style="display: none;"';
             }
 
