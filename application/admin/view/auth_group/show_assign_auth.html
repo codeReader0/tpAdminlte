@@ -111,7 +111,7 @@
                 if(v.nodes){
                     return true;
                 }
-                rules.push(v.authRuleId);
+                rules.push(v.authRuleName);
             });
             $.post('{:url("admin/AuthGroup/submitAssignAuth")}', {rules:rules, auth_group_id:auth_group_id}, function (res) {
                 if (res.code == '200'){

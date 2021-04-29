@@ -118,8 +118,8 @@ class AuthGroupController extends AuthController
                     if ($k == $authRule[$k1]['type']) {
                         $no[$i]['text'] = $k1;
                         $no[$i]['selectable'] = false;
-                        $no[$i]['authRuleId'] = $authRule[$k1]['id'];
-                        $no[$i]['state']['checked'] = in_array($authRule[$k1]['id'], $rule_array) ? true : false;
+                        $no[$i]['authRuleName'] = $authRule[$k1]['name'];
+                        $no[$i]['state']['checked'] = in_array($authRule[$k1]['name'], $rule_array) ? true : false;
                         if ($no[$i]['state']['checked']) {
                             $node[$k]['state']['expanded'] = true;
                             $node[$k]['state']['checked'] = true;
@@ -143,7 +143,7 @@ class AuthGroupController extends AuthController
                     if ($k == $authRule[$k1]['type']) {
                         $no[$i]['text'] = $k1;
                         $no[$i]['selectable'] = false;
-                        $no[$i]['authRuleId'] = $authRule[$k1]['id'];
+                        $no[$i]['authRuleName'] = $authRule[$k1]['name'];
                         $i++;
                     }
                 }

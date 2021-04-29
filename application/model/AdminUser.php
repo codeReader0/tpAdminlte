@@ -36,7 +36,7 @@ class AdminUser extends Model
 
         $rules = $path_common_map;
         foreach ($adminUser['auth_group'] as $k => $v) {
-            $tmp = json_decode($v['rule'], true);
+            $tmp = json_decode($v['rules'], true);
             $rules = array_merge($rules, $tmp);
         }
         $rules = array_values(array_unique($rules));

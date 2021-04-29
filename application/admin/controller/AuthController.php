@@ -14,14 +14,16 @@ use think\facade\Session;
 
 class AuthController extends BaseController
 {
+    public $adminUser = null;
+
     public function initialize()
     {
         if (!Session::has('admin_user')){
             $this->redirect('admin/Common/login');
         }
         else {
-            $adminUser = Session::get('admin_user');
-            $adminUser = AdminUser::with('authGroup')->field('status')->where('id', $adminUser['id'])->find();
+            $adminUser = $this->adminUser = Session::get('admin_user');
+            $adminUser = AdminUser::field('id,status')->where('id', $adminUser['id'])->find();
             if (empty($adminUser)){
                 $this->error('您的账号已经被删除', 'admin/Common/login');
             }

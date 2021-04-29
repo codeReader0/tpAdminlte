@@ -34,9 +34,8 @@ class CommonController extends BaseController
 
             $this->redirect('admin/Home/index');
         }
-        else {
-            return $this->fetch();
-        }
+
+        return $this->fetch();
     }
 
     public function logout()
