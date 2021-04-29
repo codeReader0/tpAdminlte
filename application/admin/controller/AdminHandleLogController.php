@@ -12,27 +12,27 @@ class AdminHandleLogController extends AuthController
     {
         $req = request()->param();
 
-        $bulider = AdminHandleLog::with('adminUser,authRule')->order('id', 'desc');
+        $builder = AdminHandleLog::with('adminUser,authRule')->order('id', 'desc');
         if (isset($req['admin_user_id']) && $req['admin_user_id'] !== ''){
-            $bulider->where('admin_user_id', $req['admin_user_id']);
+            $builder->where('admin_user_id', $req['admin_user_id']);
         }
         if (isset($req['auth_rule_id']) && $req['auth_rule_id'] !== ''){
-            $bulider->where('auth_rule_id', $req['auth_rule_id']);
+            $builder->where('auth_rule_id', $req['auth_rule_id']);
         }
         if (isset($req['start_date']) && $req['start_date'] !== ''){
-            $bulider->where('create_time', '>', strtotime($req['start_date']));
+            $builder->where('create_time', '>', strtotime($req['start_date']));
         }
         if (isset($req['end_date']) && $req['end_date'] !== ''){
-            $bulider->where('create_time', '<', strtotime($req['end_date']));
+            $builder->where('create_time', '<', strtotime($req['end_date']));
         }
         if (isset($req['request_body']) && $req['request_body'] !== ''){
-            $bulider->whereLike('request_body', '%'.$req['request_body'].'%');
+            $builder->whereLike('request_body', '%'.$req['request_body'].'%');
         }
         if (isset($req['response_body']) && $req['response_body'] !== ''){
-            $bulider->whereLike('response_body', '%'.$req['response_body'].'%');
+            $builder->whereLike('response_body', '%'.$req['response_body'].'%');
         }
 
-        $data = $bulider->paginate(['query' => $req]);
+        $data = $builder->paginate(['query' => $req]);
 
         $this->assign('data', $data);
 

@@ -12,12 +12,12 @@ class AuthGroupController extends AuthController
     {
         $req = request()->param();
 
-        $bulider = AuthGroup::order('id', 'desc');
+        $builder = AuthGroup::order('id', 'desc');
         if (isset($req['auth_group_id']) && $req['auth_group_id'] !== ''){
-            $bulider->where('id', $req['auth_group_id']);
+            $builder->where('id', $req['auth_group_id']);
         }
 
-        $data = $bulider->paginate(['query' => $req]);
+        $data = $builder->paginate(['query' => $req]);
 
         $this->assign('req', $req);
         $this->assign('data', $data);

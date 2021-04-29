@@ -13,18 +13,18 @@ class AdminUserController extends AuthController
     {
         $req = request()->param();
 
-        $bulider = AdminUser::order('id', 'desc');
+        $builder = AdminUser::order('id', 'desc');
         if (isset($req['admin_user_id']) && $req['admin_user_id'] !== ''){
-            $bulider->where('id', $req['admin_user_id']);
+            $builder->where('id', $req['admin_user_id']);
         }
         if (isset($req['account']) && $req['account'] !== ''){
-            $bulider->where('account', $req['account']);
+            $builder->where('account', $req['account']);
         }
         if (isset($req['status']) && $req['status'] !== ''){
-            $bulider->where('status', $req['status']);
+            $builder->where('status', $req['status']);
         }
 
-        $data = $bulider->paginate(['query' => $req]);
+        $data = $builder->paginate(['query' => $req]);
 
         $this->assign('req', $req);
         $this->assign('data', $data);
