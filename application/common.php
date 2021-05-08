@@ -38,7 +38,7 @@ if (!function_exists('out')) {
             }
         }
 
-        $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
+        $out = ['code' => $code, 'message' => $msg, 'data' => $data];
 
         if ($e !== false) {
             if ($e instanceof Exception) {
@@ -57,7 +57,7 @@ if (!function_exists('out')) {
 if (!function_exists('exit_out')) {
     function exit_out($data = null, $code = 200, $msg = 'success', $e = false)
     {
-        $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
+        $out = ['code' => $code, 'message' => $msg, 'data' => $data];
 
         if ($e !== false) {
             if ($e instanceof Exception) {
@@ -126,7 +126,7 @@ if (!function_exists('auth_show_navigation')) {
  * @param  string  $filename 导出的Excel表格数据表的文件名 不带后缀
  * 比如:
  * $list = array(array('id'=>1,'username'=>'YQJ','sex'=>'男','age'=>24));
- * $header = array('编号','姓名','性别','年龄');
+ * $header = array('id'=>'编号','username'=>'姓名','sex'=>'性别','age'=>'年龄');
  * @return [array] [数组]
  */
 if (!function_exists('create_excel')) {
@@ -136,17 +136,20 @@ if (!function_exists('create_excel')) {
         $worksheet = $spreadsheet->getActiveSheet();
         $worksheet->setTitle($title);
 
+        $i = 1;
         foreach ($header as $key => $value) {
-            $worksheet->setCellValueByColumnAndRow($key+1, 1, $value);
+            $worksheet->setCellValueByColumnAndRow($i, 1, $value);
+            $i++;
         }
 
         $row = 2; //从第二行开始
         foreach ($list as $item) {
             $column = 1;
-            foreach ($item as $value) {
-                $worksheet->setCellValueByColumnAndRow($column, $row, $value);
+            foreach ($header as $k => $v) {
+                $worksheet->setCellValueByColumnAndRow($column, $row, ' '.$item[$k]??'');
                 $column++;
             }
+
             $row++;
         }
 
@@ -158,16 +161,9 @@ if (!function_exists('create_excel')) {
 
         //2.输出到浏览器
         $writer = IOFactory::createWriter($spreadsheet, $fileType);
-        if($fileType == 'Xlsx') {
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
-            header('Cache-Control: max-age=0');
-        }
-        else {
-            header('Content-Type: application/vnd.ms-excel');
-            header('Content-Disposition: attachment;filename="'.$filename.'.xls"');
-            header('Cache-Control: max-age=0');
-        }
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
+        header('Cache-Control: max-age=0');
 
         $writer->save('php://output');
 

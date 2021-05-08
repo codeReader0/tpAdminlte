@@ -22,7 +22,7 @@ class Http extends Handle
     {
         //参数验证错误
         if ($e instanceof ValidateException) {
-            $out = ['code' => 10000, 'msg' => $e->getError(), 'data' => null];
+            $out = ['code' => 10000, 'message' => $e->getError(), 'data' => null];
             return json($out);
         }
 
@@ -35,7 +35,7 @@ class Http extends Handle
             }
         }
 
-        $out = ['code' => 500, 'msg' => $e->getMessage(), 'data' => null];
+        $out = ['code' => 500, 'message' => $e->getMessage(), 'data' => null];
 
         return json($out);
     }
