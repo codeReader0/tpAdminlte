@@ -105,9 +105,30 @@ class Custom extends Validate
             $map[] = ['delete_time', '=', 0];
         }
         if (!$db->field($pk)->where($map)->find()) {
-            return $field.'不存在';
+            return $field.lang('不存在');
         }
 
         return true;
+    }
+
+    /**
+     * 添加字段验证规则
+     * @access protected
+     * @param  string|array  $name  字段名称或者规则数组
+     * @param  mixed         $rule  验证规则或者字段描述信息
+     * @return $this
+     */
+    public function rule($name, $rule = '')
+    {
+        if (is_array($name)) {
+            $this->rule = $name;
+            if (is_array($rule)) {
+                $this->field = $rule;
+            }
+        } else {
+            $this->rule[$name] = $rule;
+        }
+
+        return $this;
     }
 }
