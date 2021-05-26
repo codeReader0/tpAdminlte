@@ -16,6 +16,8 @@ class Http extends Handle
 {
     protected $ignoreReport = [
         '\\app\\common\\exception\\ExitOutException',
+        '\\think\\exception\\ValidateException',
+        '\\think\\exception\\HttpException',
     ];
 
     public function render(Exception $e)
