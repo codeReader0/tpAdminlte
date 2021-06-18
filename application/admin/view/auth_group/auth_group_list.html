@@ -53,7 +53,7 @@
                     location.reload(true);
                 }
                 else {
-                    layer.msg(res.message, {icon: 5, time: 3000});
+                    layer.msg(res.msg, {icon: 5, time: 3000});
                 }
             });
         });
@@ -80,7 +80,7 @@
                     else {
                         $('#'+field+id).prop('checked', true);
                     }
-                    layer.msg(res.message, {icon: 5, time: 2500, offset: '80px'});
+                    layer.msg(res.msg, {icon: 5, time: 2500, offset: '80px'});
                 }
             });
         }, function(index2) {

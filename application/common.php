@@ -38,7 +38,7 @@ if (!function_exists('out')) {
             }
         }
 
-        $out = ['code' => $code, 'message' => $msg, 'data' => $data];
+        $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
 
         if ($e !== false) {
             if ($e instanceof Exception) {
@@ -57,7 +57,7 @@ if (!function_exists('out')) {
 if (!function_exists('exit_out')) {
     function exit_out($data = null, $code = 200, $msg = 'success', $e = false)
     {
-        $out = ['code' => $code, 'message' => $msg, 'data' => $data];
+        $out = ['code' => $code, 'msg' => $msg, 'data' => $data];
 
         if ($e !== false) {
             if ($e instanceof Exception) {
