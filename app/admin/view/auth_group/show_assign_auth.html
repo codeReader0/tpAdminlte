@@ -1,0 +1,130 @@
+{__NOLAYOUT__}
+<!DOCTYPE html>
+<html>
+
+{include file="head" /}
+
+<body class="hold-transition skin-blue fixed sidebar-mini">
+
+<div id="wrapper">
+    <div class="row">
+        <div class="col-sm-12 col-xs-12">
+            <div id="searchTree" class="test treeview">
+
+            </div>
+        </div>
+        <div class="col-sm-12 col-xs-12" style="text-align: center">
+            <button class="btn btn-flat btn-info" style="width: 100px;font-size: 17px;margin-bottom: 17px;" onclick="sub()">提 交</button>
+        </div>
+    </div>
+
+    <script src="__ADMIN__/plugins/treeview/bootstrap-treeview.js"></script>
+    <script>
+        $(function () {
+            var json = '<?php echo $nodeJson;?>';
+
+            $('#searchTree').treeview({
+                showCheckbox:true,
+                data:json,
+                onNodeChecked:nodeChecked ,
+                onNodeUnchecked:nodeUnchecked
+            });
+
+            var nodeCheckedSilent = false;
+            function nodeChecked (event, node){
+                if(nodeCheckedSilent){
+                    return;
+                }
+                nodeCheckedSilent = true;
+                checkAllParent(node.nodeId);
+                checkAllSon(node);
+                nodeCheckedSilent = false;
+            }
+
+            var nodeUncheckedSilent = false;
+            function nodeUnchecked  (event, node){
+                if(nodeUncheckedSilent)
+                    return;
+                nodeUncheckedSilent = true;
+                uncheckAllParent(node.nodeId);
+                uncheckAllSon(node);
+                nodeUncheckedSilent = false;
+            }
+
+            //选中全部父节点
+            function checkAllParent(nodeId){
+                $('#searchTree').treeview('expandNode', [ nodeId, { levels: 2, silent: true } ]);
+                $('#searchTree').treeview('checkNode', nodeId, {silent:true});
+                var parentNode = $('#searchTree').treeview('getParent', nodeId);
+                if(!("nodeId" in parentNode)){
+                    return;
+                }else{
+                    checkAllParent(parentNode.nodeId);
+                }
+            }
+            //取消全部父节点
+            function uncheckAllParent(nodeId){
+                $('#searchTree').treeview('uncheckNode', nodeId, {silent:true});
+                var siblings = $('#searchTree').treeview('getSiblings', nodeId);
+                var parentNode = $('#searchTree').treeview('getParent', nodeId);
+                if(!("nodeId" in parentNode)) {
+                    return;
+                }
+                var isAllUnchecked = true;  //是否全部没选中
+                for(var i in siblings){
+                    if(siblings[i].state.checked){
+                        isAllUnchecked=false;
+                        break;
+                    }
+                }
+                if(isAllUnchecked){
+                    uncheckAllParent(parentNode.nodeId);
+                }
+
+            }
+            //级联选中所有子节点
+            function checkAllSon(node){
+                $('#searchTree').treeview('checkNode',node.nodeId,{silent:true});
+                if(node.nodes!=null&&node.nodes.length>0){
+                    for(var i in node.nodes){
+                        checkAllSon(node.nodes[i]);
+                    }
+                }
+            }
+            //级联取消所有子节点
+            function uncheckAllSon(node){
+                $('#searchTree').treeview('uncheckNode',node.nodeId,{silent:true});
+                if(node.nodes!=null&&node.nodes.length>0){
+                    for(var i in node.nodes){
+                        uncheckAllSon(node.nodes[i]);
+                    }
+                }
+            }
+        });
+
+        function sub()
+        {
+            var node = $('#searchTree').treeview('getChecked');
+            var auth_group_id = <?php echo $auth_group_id; ?>;
+            var rules = [];
+            $.each(node, function (k, v) {
+                if(v.nodes){
+                    return true;
+                }
+                rules.push(v.authRuleName);
+            });
+            $.post('{:url("admin/AuthGroup/submitAssignAuth")}', {rules:rules, auth_group_id:auth_group_id}, function (res) {
+                if (res.code == '200'){
+                    parent.layer.msg('提交成功', {icon: 6, time: 2000, offset: '80px'});
+                    top.location.reload(true);
+                    parent.layer.closeAll('iframe');
+                }
+                else {
+                    parent.layer.msg(res.msg, {icon: 5, time: 2500, offset: '80px'});
+                }
+            })
+        }
+    </script>
+</div>
+</body>
+</html>

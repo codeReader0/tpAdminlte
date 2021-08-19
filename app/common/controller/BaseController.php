@@ -1,10 +1,13 @@
 <?php
 declare (strict_types = 1);
 
-namespace app;
+namespace app\common\controller;
 
+use liliuwei\think\Jump;
 use think\App;
 use think\exception\ValidateException;
+use think\facade\View;
+use think\Request;
 use think\Validate;
 
 /**
@@ -12,15 +15,16 @@ use think\Validate;
  */
 abstract class BaseController
 {
+    use Jump;
     /**
      * Request实例
-     * @var \think\Request
+     * @var Request
      */
     protected $request;
 
     /**
      * 应用实例
-     * @var \think\App
+     * @var App
      */
     protected $app;
 
@@ -91,4 +95,29 @@ abstract class BaseController
         return $v->failException(true)->check($data);
     }
 
+    /**
+     * 加载模板输出
+     * @access protected
+     * @param  string $template 模板文件名
+     * @param  array  $vars     模板输出变量
+     * @return mixed
+     */
+    protected function fetch($template = '', $vars = [])
+    {
+        return View::fetch($template, $vars);
+    }
+
+    /**
+     * 模板变量赋值
+     * @access protected
+     * @param  string|array $name  要显示的模板变量
+     * @param  mixed $value 变量的值
+     * @return $this
+     */
+    protected function assign($name, $value = null)
+    {
+        View::assign($name, $value);
+
+        return $this;
+    }
 }
