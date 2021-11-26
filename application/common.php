@@ -27,11 +27,19 @@ if (!function_exists('out')) {
                 if (!empty($req['password_confirm'])){
                     $req['password_confirm'] = '******';
                 }
+
                 $response_body = $data === null ? 'success' : json_encode($data, JSON_UNESCAPED_UNICODE);
+                if (mb_strlen($response_body) > 5000) {
+                    $response_body = mb_substr($response_body, 0, 5000);
+                }
+                $request_body = json_encode($req, JSON_UNESCAPED_UNICODE);
+                if (mb_strlen($request_body) > 5000) {
+                    $request_body = mb_substr($request_body, 0, 5000);
+                }
                 $add = [
                     'admin_user_id' => session('admin_user')['id'],
                     'auth_rule_id' => $authRule['id'],
-                    'request_body' => json_encode($req, JSON_UNESCAPED_UNICODE),
+                    'request_body' => $request_body,
                     'response_body' => $response_body
                 ];
                 AdminHandleLog::create($add);
