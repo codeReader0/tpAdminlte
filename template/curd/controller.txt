@@ -1,0 +1,80 @@
+<?php
+
+namespace app\admin\controller;
+
+use app\model\{$model};
+
+class {$model}Controller extends AuthController
+{
+    public function {$minModel}List()
+    {
+        $req = request()->param();
+
+        $builder = {$model}::order('id', 'desc');
+        {$cond}
+        $data = $builder->paginate(['query' => $req]);
+
+        $this->assign('req', $req);
+        $this->assign('data', $data);
+
+        return $this->fetch();
+    }
+
+    public function show{$model}()
+    {
+        $req = request()->param();
+        $data = [];
+        if (!empty($req['id'])){
+            $data = {$model}::where('id', $req['id'])->find();
+        }
+        $this->assign('data', $data);
+
+        return $this->fetch();
+    }
+
+    public function add{$model}()
+    {
+        $req = request()->post();
+        $this->validate($req, [
+            {$validate}
+        ]);
+
+        {$model}::create($req);
+
+        return out();
+    }
+
+    public function edit{$model}()
+    {
+        $req = request()->post();
+        $this->validate($req, [
+            'id' => 'require|number',
+            {$validate}
+        ]);
+
+        {$model}::where('id', $req['id'])->update($req);
+
+        return out();
+    }
+
+    public function change{$model}()
+    {
+        $req = request()->post();
+
+        {$model}::where('id', $req['id'])->update([$req['field'] => $req['value']]);
+
+        return out();
+    }
+
+    public function del{$model}()
+    {
+        $req = request()->post();
+        $this->validate($req, [
+            'id' => 'require|number'
+        ]);
+
+        {$model}::destroy($req['id']);
+
+        return out();
+    }
+}

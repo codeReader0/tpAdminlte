@@ -4,6 +4,7 @@ use app\model\AdminUser;
 use app\model\AuthRule;
 use app\model\AdminHandleLog;
 use app\common\exception\ExitOutException;
+use think\facade\Filesystem;
 
 //统一输出格式话的json数据
 if (!function_exists('out')) {
@@ -214,17 +215,16 @@ if (!function_exists('upload_file')) {
     {
         if (!empty(request()->file()[$name])){
             $file = request()->file()[$name];
-            $move_path = env('root_path').'public/uploads';
-            $info = $file->move($move_path);
+            $savename =  Filesystem::putFile('topic', $file);
 
             if ($is_return_url){
-                $img_url = request()->domain().'/uploads/'.$info->getSaveName();
+                $img_url = request()->domain().$savename;
                 if (!empty(env('img_domain', ''))) {
-                    $img_url = env('img_domain').'/uploads/'.$info->getSaveName();
+                    $img_url = env('img_domain').$savename;
                 }
             }
             else {
-                $img_url = $move_path.'/'.$info->getSaveName();
+                $img_url = $savename;
             }
 
             return $img_url;

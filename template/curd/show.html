@@ -1,0 +1,50 @@
+<div class="search">
+    <form class="form-inline">
+        <a class="btn btn-flat btn-primary m_10_l_0" href="{:url('admin/{$model}/{$minModel}List')}">显示全部</a>
+        <a class="btn btn-flat btn-success m_10 f_r" onclick="javascript:history.back(-1)"><i class="fa fa-undo m-r-10"></i>返 回</a>
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-sm-12 col-xs-12">
+        <form id="commentForm">
+            <?php if (!empty($data)){ ?>
+                <input type="hidden" class="form-control" value="{$data['id']}" name="id">
+            <?php } ?>
+            <div class="box box-body">
+                {$ele}
+                <div class="row dd_input_group">
+                    <div class="form-group">
+                        <div class="col-xs-12 col-sm-8 col-md-6 col-lg-5 text-center">
+                            <button type="button" class="btn btn-flat btn-primary" onclick="sub()">提 交</button>
+                            <button type="button" class="btn btn-flat btn-default" onclick="javascript:history.back(-1)">返 回</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(function(){
+        var url = "{:url('admin/{$model}/{$minModel}List')}";
+        $('a[href="'+url+'"]').parents('.menu-li').addClass('active');
+        var headerText = $('a[href="'+url+'"]').children('span').text();
+        var is_add = "<?php echo !empty($data) ? '0' : '1';?>";
+        var headerTitle = is_add == "1" ? headerText + '-添加' : headerText + '-编辑';
+        $('#content-header-title').text(headerTitle);
+    });
+
+    function sub()
+    {
+        $.post('<?php echo !empty($data) ? url("admin/{$model}/edit{$model}") : url("admin/{$model}/add{$model}");?>', $('#commentForm').serialize(), function (res) {
+            if (res.code == '200'){
+                window.location.href = document.referrer;
+            }
+            else {
+                layer.msg(res.msg, {icon: 5, time: 3000});
+            }
+        });
+    }
+</script>

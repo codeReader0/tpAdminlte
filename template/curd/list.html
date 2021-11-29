@@ -1,0 +1,88 @@
+<div class="search">
+    <form class="form-inline">
+        {$search}
+        <input class="btn btn-flat btn-primary m_10" type="submit" value="搜索">
+        <a {:auth_show_judge('{$model}/add{$model}')} class="btn btn-flat btn-success m_10 f_r" href="{:url('admin/{$model}/show{$model}')}"><i class="fa fa-plus m-r-10"></i>添 加</a>
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-bordered table-hover table-striped">
+                        <tbody>
+                            <tr>
+                                {$ther}
+                                <th>操作</th>
+                            </tr>
+                            <?php foreach ($data as $k => $v){ ?>
+                                <tr>
+                                    {$tbod}
+                                    <td>
+                                        <a {:auth_show_judge('{$model}/edit{$model}')} class="btn btn-flat btn-info btn-xs" href="{:url('admin/{$model}/show{$model}', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a>
+                                        <a {:auth_show_judge('{$model}/del{$model}')} class="btn btn-flat btn-danger btn-xs" href="javascript:;" onclick="del{$model}({$v['id']})"><i class="fa fa-trash-o"></i> 删除</a>
+                                    </td>
+                                </tr>
+                            <?php }?>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="text-align:center;font-size: 14px;"><?php echo $data->render();?></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function del{$model}(id)
+    {
+        //确认框
+        layer.confirm('确定删除吗？', {icon: 3, title:'提示'}, function(index) {
+            layer.close(index);
+            $.post('{:url("admin/{$model}/del{$model}")}', {id:id}, function (res) {
+                if (res.code == '200'){
+                    location.reload(true);
+                }
+                else {
+                    layer.msg(res.msg, {icon: 5, time: 3000});
+                }
+            });
+        });
+    }
+
+    function change{$model}(id, field)
+    {
+        var value = 0;
+        if($('#'+field+id).is(':checked')) {
+            value = 0;
+        }
+        else{
+            value = 1;
+        }
+
+        //确认框
+        layer.confirm('确定操作吗', {icon: 3, title:'提示'}, function(index) {
+            layer.close(index);
+            $.post('{:url("admin/{$model}/change{$model}")}', {"id": id, "value": value, "field": field}, function (res) {
+                if (res.code != 200) {
+                    if(value == 1){
+                        $('#'+field+id).prop('checked', false);
+                    }
+                    else {
+                        $('#'+field+id).prop('checked', true);
+                    }
+                    layer.msg(res.msg, {icon: 5, time: 2500, offset: '80px'});
+                }
+            });
+        }, function(index2) {
+            if(value == 1){
+                $('#'+field+id).prop('checked', false);
+            }
+            else {
+                $('#'+field+id).prop('checked', true);
+            }
+        });
+    }
+</script>
