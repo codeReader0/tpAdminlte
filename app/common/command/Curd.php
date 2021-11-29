@@ -79,7 +79,7 @@ class Curd extends Command
                 $cond = $cond.'if (isset($req[\''.$condKey.'\']) && $req[\''.$condKey.'\'] !== \'\'){'."\n".'$builder->where(\''.$v1['name'].'\', $req[\''.$condKey.'\']);'."\n".'}'."\n";
             }
 
-            if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at', 'delete_time'])) {
+            if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at', 'delete_time', 'created_at', 'updated_at', 'deleted_at'])) {
                 continue;
             }
             $va = 'require';
@@ -135,7 +135,7 @@ class Curd extends Command
         $tbod = '';
         $search = '';
         foreach ($tmp as $k1 => $v1){
-            if (in_array($v1['name'], ['update_time', 'update_at'])){
+            if (in_array($v1['name'], ['update_time', 'update_at', 'updated_at'])){
                 continue;
             }
             $commentArr = $this->convertComment($v1);
@@ -184,7 +184,7 @@ class Curd extends Command
         $content = file_get_contents($template);
         $ele = '';
         foreach ($tmp as $k1 => $v1){
-            if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at'])) {
+            if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at', 'created_at', 'updated_at'])) {
                 continue;
             }
             $commentArr = $this->convertComment($v1);

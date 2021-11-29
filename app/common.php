@@ -1,25 +1,23 @@
 <?php
 
 use app\model\AdminUser;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use app\model\AuthRule;
 use app\model\AdminHandleLog;
 use app\common\exception\ExitOutException;
+use think\facade\Filesystem;
 
 //统一输出格式话的json数据
 if (!function_exists('out')) {
     function out($data = null, $code = 200, $msg = 'success', $e = false)
     {
         $req = request()->param();
-        $module = request()->module();
+        $module = app('http')->getName();
         if ($module === 'admin'){
             $action = request()->action();
             $controller = request()->controller();
 
             $path = $controller . '/' . $action;
-            $authRule = AuthRule::get(['name' => $path]);
-
+            $authRule = AuthRule::where('name', $path)->find();
             if (!empty(session('admin_user')['id']) && !empty($authRule['id']) && $code == 200){
                 if (!empty($req['password'])){
                     $req['password'] = '******';
@@ -137,7 +135,7 @@ if (!function_exists('auth_show_navigation')) {
  * $header = array('id'=>'编号','username'=>'姓名','sex'=>'性别','age'=>'年龄');
  * @return [array] [数组]
  */
-if (!function_exists('create_excel')) {
+/*if (!function_exists('create_excel')) {
     function create_excel($list, $header, $filename, $title = '0')
     {
         $spreadsheet = new Spreadsheet();
@@ -177,7 +175,7 @@ if (!function_exists('create_excel')) {
 
         exit;
     }
-}
+}*/
 
 //AES加密
 if (!function_exists('aes_encrypt')) {
@@ -218,17 +216,16 @@ if (!function_exists('upload_file')) {
     {
         if (!empty(request()->file()[$name])){
             $file = request()->file()[$name];
-            $move_path = env('root_path').'public/uploads';
-            $info = $file->move($move_path);
+            $savename =  Filesystem::putFile('topic', $file);
 
             if ($is_return_url){
-                $img_url = request()->domain().'/uploads/'.$info->getSaveName();
+                $img_url = request()->domain().$savename;
                 if (!empty(env('img_domain', ''))) {
-                    $img_url = env('img_domain').'/uploads/'.$info->getSaveName();
+                    $img_url = env('img_domain').$savename;
                 }
             }
             else {
-                $img_url = $move_path.'/'.$info->getSaveName();
+                $img_url = $savename;
             }
 
             return $img_url;

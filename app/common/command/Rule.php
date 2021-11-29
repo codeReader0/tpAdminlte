@@ -65,7 +65,7 @@ class Rule extends Command
         $authRuleArray = AuthRule::where('status', 1)->column('name');
         $rules = json_encode($authRuleArray);
 
-        if($authGroup = AuthGroup::get(1)) {
+        if ($authGroup = AuthGroup::where('id', 1)->find()) {
             $authGroup->rules = $rules;
             $authGroup->save();
         }
