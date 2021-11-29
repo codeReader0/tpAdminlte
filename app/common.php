@@ -10,14 +10,13 @@ if (!function_exists('out')) {
     function out($data = null, $code = 200, $msg = 'success', $e = false)
     {
         $req = request()->param();
-        $module = request()->module();
+        $module = app('http')->getName();
         if ($module === 'admin'){
             $action = request()->action();
             $controller = request()->controller();
 
             $path = $controller . '/' . $action;
-            $authRule = AuthRule::get(['name' => $path]);
-
+            $authRule = AuthRule::where('name', $path)->find();
             if (!empty(session('admin_user')['id']) && !empty($authRule['id']) && $code == 200){
                 if (!empty($req['password'])){
                     $req['password'] = '******';

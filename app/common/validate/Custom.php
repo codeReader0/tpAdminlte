@@ -2,9 +2,7 @@
 
 namespace app\common\validate;
 
-use think\Container;
 use think\Db;
-use think\exception\ClassNotFoundException;
 use think\Validate;
 
 class Custom extends Validate

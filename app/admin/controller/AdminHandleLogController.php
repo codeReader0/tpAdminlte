@@ -36,10 +36,10 @@ class AdminHandleLogController extends AuthController
 
         $this->assign('data', $data);
 
-        $adminUsers = AdminUser::all();
+        $adminUsers = AdminUser::select();
         $this->assign('adminUsers', $adminUsers);
 
-        $authRules = AuthRule::all(['status' => 1]);
+        $authRules = AuthRule::where('status', 1)->select();
         $this->assign('authRules', $authRules);
 
         $this->assign('req', $req);
