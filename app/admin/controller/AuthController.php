@@ -31,7 +31,7 @@ class AuthController extends BaseController
                 $this->error('您的账号已经被冻结', 'admin/Common/login');
             }
 
-            if (config('is_open_auth')){
+            if (config('app.is_open_auth')){
                 $action = request()->action();
                 if (strpos($action, 'show') === false){
                     if (!AdminUser::checkAuth($adminUser['id'])) {

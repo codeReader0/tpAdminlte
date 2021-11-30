@@ -55,7 +55,7 @@ class ExceptionHandle extends Handle
     {
         // 添加自定义异常处理机制
         if ($e instanceof ValidateException) {
-            if (request()->isAjax()) {
+            if (request()->isAjax() || request()->isJson() || request()->isPost()) {
                 $out = ['code' => 10000, 'msg' => $e->getError(), 'data' => null];
                 return json($out);
             }

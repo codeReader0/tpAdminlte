@@ -31,7 +31,7 @@ class AdminUser extends Model
             $path = $controller . '/' . $action;
         }
         $path = strtolower($path);
-        $path_common_map = config('path_common_map');
+        $path_common_map = config('app.path_common_map');
         $path_common_map = array_map('strtolower', $path_common_map);
 
         $rules = $path_common_map;

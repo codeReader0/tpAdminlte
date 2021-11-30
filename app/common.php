@@ -84,7 +84,7 @@ if (!function_exists('exit_out')) {
 if (!function_exists('auth_show_judge')) {
     function auth_show_judge($path, $is_return_bool = false)
     {
-        if (config('is_open_auth')){
+        if (config('app.is_open_auth')){
             if (!AdminUser::checkAuth(session('admin_user')['id'], $path)) {
                 return $is_return_bool ? false : 'style="display: none;"';
             }
@@ -184,8 +184,8 @@ if (!function_exists('aes_encrypt')) {
         if (is_array($data)) {
             $data = json_encode($data, JSON_UNESCAPED_UNICODE);
         }
-        $key = config('aes_key');
-        $iv  = config('aes_iv');
+        $key = config('app.aes_key');
+        $iv  = config('app.aes_iv');
 
         $cipher_text = openssl_encrypt($data, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
         $cipher_text = base64_encode($cipher_text);
@@ -201,8 +201,8 @@ if (!function_exists('aes_decrypt')) {
         $encryptData = urldecode($encryptData);
         $encryptData = base64_decode($encryptData);
 
-        $key = config('aes_key');
-        $iv  = config('aes_iv');
+        $key = config('app.aes_key');
+        $iv  = config('app.aes_iv');
 
         $original_plaintext = openssl_decrypt($encryptData, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
 
