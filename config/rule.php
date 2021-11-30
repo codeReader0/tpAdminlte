@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: zilongs
- * Date: 2021/4/28
- * Time: 9:26 下午
- */
 
 return [
     '后台账户管理' => [

@@ -6,8 +6,7 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Option;
 use think\console\Output;
-use think\Db;
-use think\facade\Env;
+use think\facade\Db;
 
 class Curd extends Command
 {
@@ -18,8 +17,8 @@ class Curd extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $database = config('database.database');
-        $prefix = config('database.prefix');
+        $database = env('database.database');
+        $prefix = env('database.prefix');
 
         if ($input->hasOption('table')) {
             $table = $input->getOption('table');
@@ -42,13 +41,13 @@ class Curd extends Command
         $lineModel = $this->uncamelize($model);
 
         //创建model
-        $path = Env::get('root_path').'/application/model';
+        $path = root_path().'/app/model';
         $file = $model.'.php';
-        $template = Env::get('root_path').'/template/curd/model.txt';
+        $template = root_path().'/template/curd/model.txt';
         $content = file_get_contents($template);
 
         $attr = '';
-        $configMap = config('map.');
+        $configMap = config('map');
         foreach ($tmp as $k1 => $v1){
             $commentArr = $this->convertComment($v1);
             if ($commentArr[2] > 0){
@@ -67,9 +66,9 @@ class Curd extends Command
         $this->createPathFile($path, $file, $content);
 
         //创建controller
-        $path = Env::get('root_path').'/application/admin/controller';
+        $path = root_path().'/app/admin/controller';
         $file = $model.'Controller.php';
-        $template = Env::get('root_path').'/template/curd/controller.txt';
+        $template = root_path().'/template/curd/controller.txt';
         $content = file_get_contents($template);
         $validate = $cond = '';
         foreach ($tmp as $k1 => $v1){
@@ -127,9 +126,9 @@ class Curd extends Command
         $this->createPathFile($path, $file, $content);
 
         //创建列表view
-        $path = Env::get('root_path').'/application/admin/view/'.$table;
+        $path = root_path().'/app/admin/view/'.$table;
         $file = $table.'_list.html';
-        $template = Env::get('root_path').'/template/curd/list.html';
+        $template = root_path().'/template/curd/list.html';
         $content = file_get_contents($template);
         $ther = '';
         $tbod = '';
@@ -178,9 +177,9 @@ class Curd extends Command
         $this->createPathFile($path, $file, $content);
 
         //创建展示view
-        $path = Env::get('root_path').'/application/admin/view/'.$table;
+        $path = root_path().'/app/admin/view/'.$table;
         $file = 'show_'.$table.'.html';
-        $template = Env::get('root_path').'/template/curd/show.html';
+        $template = root_path().'/template/curd/show.html';
         $content = file_get_contents($template);
         $ele = '';
         foreach ($tmp as $k1 => $v1){
@@ -228,11 +227,11 @@ class Curd extends Command
     //生成菜单
     private function buildMenu($model)
     {
-        $menu = config('menu.');
+        $menu = config('menu');
         $menu['请改名称'.$model]['icon'] = 'fa-user';
         $menu['请改名称'.$model]['url'] = 'admin/'.$model.'/'.$model.'List';
         $str = var_export($menu, true);
-        $path = Env::get('root_path').'/config';
+        $path = root_path().'/config';
         $str = '<?php'."\n"."\n".'return '.$str.';'."\n";
         $this->createPathFile($path, 'menu.php', $str);
     }
@@ -241,7 +240,7 @@ class Curd extends Command
     private function buildMap($map)
     {
         $str = var_export($map, true);
-        $path = Env::get('root_path').'/config';
+        $path = root_path().'/config';
         $str = '<?php'."\n"."\n".'return '.$str.';'."\n";
         $this->createPathFile($path, 'map.php', $str);
     }
@@ -324,13 +323,13 @@ class Curd extends Command
     //生成权限
     private function buildRule($db_table, $model, $minModel)
     {
-        $database = config('database.database');
+        $database = env('database.database');
         $sql = "SELECT TABLE_NAME,TABLE_COMMENT FROM information_schema.TABLES WHERE table_schema='".$database."' and TABLE_NAME = '".$db_table."'";
         $tmp = Db::query($sql);
         $title = str_replace('表', '', $tmp[0]['TABLE_COMMENT']);
         $menu_title = $title.'管理';
 
-        $rule = config('rule.');
+        $rule = config('rule');
         $rule[$menu_title] = [
             [
                 'name' => $model.'/'.$minModel.'List',
@@ -355,7 +354,7 @@ class Curd extends Command
         ];
 
         $str = var_export($rule, true);
-        $path = Env::get('root_path').'/config';
+        $path = root_path().'/config';
         $str = '<?php'."\n"."\n".'return '.$str.';'."\n";
         $this->createPathFile($path, 'rule.php', $str);
     }

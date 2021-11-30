@@ -99,7 +99,7 @@ if (!function_exists('auth_show_judge')) {
 if (!function_exists('auth_show_navigation')) {
     function auth_show_navigation()
     {
-        $menu = config('menu.');
+        $menu = config('menu');
         foreach ($menu as $k => $v){
             if (is_array($v['url'])){
                 foreach ($v['url'] as $k1 => $v1){

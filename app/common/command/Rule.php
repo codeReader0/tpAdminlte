@@ -15,7 +15,7 @@ use app\model\AuthRule;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\Db;
+use think\facade\Db;
 
 class Rule extends Command
 {
@@ -26,9 +26,9 @@ class Rule extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        Db::execute('TRUNCATE '.config('database.prefix').'auth_rule');
+        Db::execute('TRUNCATE '.env('database.prefix').'auth_rule');
 
-        $rule = config('rule.');
+        $rule = config('rule');
         $i = 1;
         $list = [];
         foreach ($rule as $k => $v) {
