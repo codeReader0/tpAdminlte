@@ -6,11 +6,6 @@ use think\Model;
 
 class AdminHandleLog extends Model
 {
-    public function getCreateDateAttr($value, $data)
-    {
-        return date('Y-m-d H:i', $data['create_time']);
-    }
-
     public function adminUser()
     {
         return $this->belongsTo('AdminUser')->field('id,nickname');

@@ -33,9 +33,9 @@ return [
     // 全局请求缓存排除规则
     'request_cache_except'  => [],
     // 默认控制器名
-    'default_controller'    => 'Admin',
+    'default_controller'    => 'Home',
     // 默认操作名
-    'default_action'        => 'home',
+    'default_action'        => 'index',
     // 操作方法后缀
     'action_suffix'         => '',
     // 默认JSONP格式返回的处理方法

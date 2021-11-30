@@ -216,16 +216,16 @@ if (!function_exists('upload_file')) {
     {
         if (!empty(request()->file()[$name])){
             $file = request()->file()[$name];
-            $savename =  Filesystem::putFile('topic', $file);
+            $savename = Filesystem::putFile('', $file);
 
             if ($is_return_url){
-                $img_url = request()->domain().$savename;
+                $img_url = request()->domain().'/storage/'.$savename;
                 if (!empty(env('img_domain', ''))) {
-                    $img_url = env('img_domain').$savename;
+                    $img_url = env('img_domain').'/storage/'.$savename;
                 }
             }
             else {
-                $img_url = $savename;
+                $img_url = public_path().'storage/'.$savename;
             }
 
             return $img_url;

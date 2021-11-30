@@ -25,7 +25,7 @@
                                 <td>{$v['id']}</td>
                                 <td>{$v['title']}</td>
                                 <td>{$v['desc']}</td>
-                                <td>{$v['create_date']}</td>
+                                <td>{$v['created_at']}</td>
                                 <td>
                                     <a {:auth_show_judge('AuthGroup/editAuthGroup')} class="btn btn-flat btn-info btn-xs" href="{:url('admin/AuthGroup/showAuthGroup', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a>
                                     <a {:auth_show_judge('AuthGroup/submitAssignAuth')} class="btn btn-flat btn-success btn-xs"  onclick="showAssignAuth({$v['id']})"><i class="fa fa-hand-rock-o"></i> 权限配置</a>

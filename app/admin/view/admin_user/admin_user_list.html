@@ -45,7 +45,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{$v['create_date']}</td>
+                                <td>{$v['created_at']}</td>
                                 <td>
                                     <a {:auth_show_judge('AdminUser/editAdminUser')} class="btn btn-flat btn-info btn-xs" href="{:url('admin/AdminUser/showAdminUser', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a>
                                     <a {:auth_show_judge('AdminUser/delAdminUser')} class="btn btn-flat btn-danger btn-xs" href="javascript:;" onclick="delAdminUser({$v['id']})"><i class="fa fa-trash-o"></i> 删除</a>
