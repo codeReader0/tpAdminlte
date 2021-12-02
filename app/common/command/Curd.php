@@ -229,7 +229,7 @@ class Curd extends Command
     {
         $menu = config('menu');
         $menu['请改名称'.$model]['icon'] = 'fa-user';
-        $menu['请改名称'.$model]['url'] = 'admin/'.$model.'/'.$model.'List';
+        $menu['请改名称'.$model]['url'] = 'admin/'.$model.'/'.lcfirst($model).'List';
         $str = var_export($menu, true);
         $path = root_path().'/config';
         $str = '<?php'."\n"."\n".'return '.$str.';'."\n";

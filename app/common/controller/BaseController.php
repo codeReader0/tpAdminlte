@@ -61,15 +61,16 @@ abstract class BaseController
     /**
      * 验证数据
      * @access protected
-     * @param  array        $data     数据
+     * @param  mixed        $data     数据
      * @param  string|array $validate 验证器名或者验证规则数组
      * @param  array        $message  提示信息
      * @param  bool         $batch    是否批量验证
      * @return array|string|true
      * @throws ValidateException
      */
-    protected function validate(array $data, $validate, array $message = [], bool $batch = false)
+    protected function validate($data, $validate, array $message = [], bool $batch = false)
     {
+        $rule = $validate;
         if (is_array($validate)) {
             $v = new Validate();
             $v->rule($validate);
@@ -92,7 +93,21 @@ abstract class BaseController
             $v->batch(true);
         }
 
-        return $v->failException(true)->check($data);
+        if (empty($data) || !is_array($data)) {
+            $data = request()->param();
+        }
+        $v->failException(true)->check($data);
+
+        if (is_array($rule)) {
+            $keys = [];
+            foreach ($rule as $k => $v) {
+                $arr = explode('|', $k);
+                $keys[$arr[0]] = $arr[0];
+            }
+            $data = array_intersect_key($data, $keys);
+        }
+
+        return $data;
     }
 
     /**
