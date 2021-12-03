@@ -8,6 +8,7 @@ use think\exception\Handle;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\exception\ValidateException;
+use think\facade\View;
 use think\Request;
 use think\Response;
 use Throwable;
@@ -53,39 +54,39 @@ class ExceptionHandle extends Handle
      */
     public function render($request, Throwable $e): Response
     {
-        // 添加自定义异常处理机制
-        if ($e instanceof ValidateException) {
-            if (request()->isAjax() || request()->isJson() || request()->isPost()) {
-                $out = ['code' => 10000, 'msg' => $e->getError(), 'data' => null];
+        $module = app('http')->getName();
+        if ($module == 'api') {
+            $out = ['code' => 500, 'msg' => $e->getMessage(), 'data' => null];
+            //验证错误
+            if ($e instanceof ValidateException) {
+                $out['code'] = 10000;
+            }
+            //自定义异常错误
+            if ($e instanceof ExitOutException) {
+                $msg = $e->getMessage();
+                $out = json_decode($msg, true);
+            }
+
+            return json($out);
+        }
+        else {
+            if ($request->isAjax()) {
+                $out = ['code' => 500, 'msg' => $e->getMessage(), 'data' => null];
+                //验证错误
+                if ($e instanceof ValidateException) {
+                    $out['code'] = 10000;
+                }
+                //自定义异常错误
+                if ($e instanceof ExitOutException) {
+                    $msg = $e->getMessage();
+                    $out = json_decode($msg, true);
+                }
                 return json($out);
             }
             else {
-                $result = [
-                    'code' => 0,
-                    'msg'  => $e->getError(),
-                    'data' => '',
-                    'url'  => 'javascript:history.back(-1);',
-                    'wait' => 3,
-                ];
-
-                $type = 'view';
-                $response = Response::create(config('jump.dispatch_error_tmpl'), $type)->assign($result)->header([]);
-
-                return $response;
+                View::engine()->layout(false);
+                return parent::render($request, $e);
             }
         }
-
-        //自定义异常错误
-        if ($e instanceof ExitOutException) {
-            $msg = $e->getMessage();
-            $out = json_decode($msg, true);
-            if (!empty($out)) {
-                return json($out);
-            }
-        }
-
-        $out = ['code' => 500, 'msg' => $e->getMessage(), 'data' => null];
-
-        return json($out);
     }
 }
