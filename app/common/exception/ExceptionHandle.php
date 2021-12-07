@@ -66,6 +66,11 @@ class ExceptionHandle extends Handle
                 $msg = $e->getMessage();
                 $out = json_decode($msg, true);
             }
+            //跳转类的错误
+            if ($e instanceof HttpResponseException) {
+                View::engine()->layout(false);
+                return parent::render($request, $e);
+            }
 
             return json($out);
         }

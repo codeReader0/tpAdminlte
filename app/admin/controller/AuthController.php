@@ -19,7 +19,7 @@ class AuthController extends BaseController
     public function initialize()
     {
         if (!Session::has('admin_user')){
-            return redirect('/admin/Common/login');
+            $this->redirect('/admin/Common/login');
         }
         else {
             $adminUser = $this->adminUser = Session::get('admin_user');
