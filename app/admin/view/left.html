@@ -10,7 +10,7 @@
                 <i class="fa fa-circle text-success"></i> 在线
             </div>
         </div>
-        <?php $url = request()->baseUrl(); ?>
+        <?php $url = app('http')->getName().'/'.request()->controller().'/'.request()->action(); $url = url($url); ?>
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">主导航</li>
             <?php $authMenuNavigation = auth_show_navigation(); foreach ($authMenuNavigation as $k => $v){ ?>

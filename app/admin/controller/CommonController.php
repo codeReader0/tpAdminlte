@@ -32,7 +32,7 @@ class CommonController extends BaseController
 
             Session::set('admin_user', $adminUser);
 
-            return redirect('/admin/Home/index');
+            return redirect(url('admin/Home/index'));
         }
 
         return $this->fetch();
@@ -41,6 +41,6 @@ class CommonController extends BaseController
     public function logout()
     {
         Session::clear();
-        return redirect('/admin/Common/login');
+        return redirect(url('admin/Common/login'));
     }
 }

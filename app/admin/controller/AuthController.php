@@ -19,16 +19,16 @@ class AuthController extends BaseController
     public function initialize()
     {
         if (!Session::has('admin_user')){
-            $this->redirect('/admin/Common/login');
+            $this->redirect(url('admin/Common/login'));
         }
         else {
             $adminUser = $this->adminUser = Session::get('admin_user');
             $adminUser = AdminUser::field('id,status')->where('id', $adminUser['id'])->find();
             if (empty($adminUser)){
-                $this->error('您的账号已经被删除', 'admin/Common/login');
+                $this->error('您的账号已经被删除', url('admin/Common/login'));
             }
             if ($adminUser['status'] == 0){
-                $this->error('您的账号已经被冻结', 'admin/Common/login');
+                $this->error('您的账号已经被冻结', url('admin/Common/login'));
             }
 
             if (config('app.is_open_auth')){
