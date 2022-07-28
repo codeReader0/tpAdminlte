@@ -4,6 +4,7 @@ use app\model\AdminUser;
 use app\model\AuthRule;
 use app\model\AdminHandleLog;
 use app\common\exception\ExitOutException;
+use think\facade\Cache;
 use think\facade\Filesystem;
 
 //统一输出格式话的json数据
@@ -184,8 +185,8 @@ if (!function_exists('aes_encrypt')) {
         if (is_array($data)) {
             $data = json_encode($data, JSON_UNESCAPED_UNICODE);
         }
-        $key = config('app.aes_key');
-        $iv  = config('app.aes_iv');
+        $key = config('config.aes_key');
+        $iv  = config('config.aes_iv');
 
         $cipher_text = openssl_encrypt($data, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
         $cipher_text = base64_encode($cipher_text);
@@ -201,8 +202,8 @@ if (!function_exists('aes_decrypt')) {
         $encryptData = urldecode($encryptData);
         $encryptData = base64_decode($encryptData);
 
-        $key = config('app.aes_key');
-        $iv  = config('app.aes_iv');
+        $key = config('config.aes_key');
+        $iv  = config('config.aes_iv');
 
         $original_plaintext = openssl_decrypt($encryptData, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
 
@@ -220,8 +221,8 @@ if (!function_exists('upload_file')) {
 
             if ($is_return_url){
                 $img_url = request()->domain().'/storage/'.$savename;
-                if (!empty(env('img_domain', ''))) {
-                    $img_url = env('img_domain').'/storage/'.$savename;
+                if (!empty(env('common.img_domain', ''))) {
+                    $img_url = env('common.img_domain').'/storage/'.$savename;
                 }
             }
             else {
@@ -239,3 +240,63 @@ if (!function_exists('upload_file')) {
         return '';
     }
 }
+
+//检测重复请求 超过就禁止访问 有用户flag就针对用户flag 没有flag就针对ip地址(ip的话注意反代情况，可能每个用户请求的ip都是反代服务器的ip,当然可以配置一波反代服务器使得业务服务器获取到真实用户ip) 最小只能设置1s一次请求 不支持1s以下 如果开启了redis可以支持毫秒级
+if (!function_exists('check_repeat_request')) {
+    function check_repeat_request($time, $limit, $flag = '')
+    {
+        $action = request()->action();
+        if (!empty($flag)) {
+            $key = $action.$flag;
+        }
+        else {
+            $ip = request()->ip();
+            $key = $action.$ip;
+        }
+
+        $req = request()->param();
+        if (!empty($req)) {
+            ksort($req);
+            $reqMd5 = md5(json_encode($req));
+            $key = $key.$reqMd5;
+        }
+
+        //如果开启了redis可以支持毫秒级
+        if (config('cache.redis_cache_switch')) {
+            $time = $time * 1000;
+            $redis = Cache::store('redis')->handler();
+            if ($redis->exists($key)) {
+                $redis->incrby($key, 1);
+                $count = $redis->get($key);
+                if ($count > $limit) {
+                    exit_out(null, 11003, '操作过于频繁，请稍后重试');
+                }
+            }
+            else {
+                $redis->set($key, 1);
+                $redis->pexpire($key, $time);
+            }
+        }
+        else {
+            if ($time < 1) {
+                $time = 1;
+            }
+            if (Cache::has($key)) {
+                if ($time == 1 && $limit == 1) {
+                    exit_out(null, 11003, '操作过于频繁，请稍后重试');
+                }
+                Cache::inc($key);
+                $count = Cache::get($key);
+                if($count > $limit) {
+                    exit_out(null, 11003, '操作过于频繁，请稍后重试');
+                }
+            }
+            else {
+                Cache::set($key, 1, $time);
+            }
+        }
+
+        return true;
+    }
+}
+

@@ -26,4 +26,6 @@ return [
         ],
         // 更多的缓存连接
     ],
+
+    'redis_cache_switch' => false, //开启redis必须配置redis
 ];
