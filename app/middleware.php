@@ -8,5 +8,7 @@ return [
     // 多语言加载
     // \think\middleware\LoadLangPack::class,
     // Session初始化
-    SessionInit::class
+    SessionInit::class,
+    // 跨域
+    // \app\common\behavior\CrossDomainCrossDomain::class,
 ];
