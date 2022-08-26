@@ -1,0 +1,50 @@
+{__NOLAYOUT__}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{:config('app.app_name')}管理系统</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="__ADMIN__/plugins/layui/css/layui.css">
+    <link rel="stylesheet" href="__ADMIN__/css/login.css?v=1.1">
+
+    <script src="__ADMIN__/bower_components/jquery/dist/jquery.min.js"></script>
+</head>
+
+<body class="signin">
+    <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login">
+        <div class="layadmin-user-login-main">
+            <div class="layadmin-user-login-box layadmin-user-login-header">
+                <h2>{:config('app.app_name')}管理系统</h2>
+            </div>
+            <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+                <form method="post" action="{:url('admin/Common/login')}">
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
+                        <input type="text" name="account" id="LAY-user-login-username" placeholder="用户名" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+                        <input type="password" name="password" id="LAY-user-login-password" placeholder="密码" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <button class="layui-btn layui-btn-fluid login">登 录</button>
+                    </div>
+                    <div class="layui-trans layadmin-user-login-footer">
+                        <p>{:config('app.app_name')}管理系统 Copyright © 2019</p>g
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).keyup(function(event){
+            if(event.keyCode == 13){
+                $(".login").trigger("click");
+            }
+        });
+    </script>
+</body>
+</html>

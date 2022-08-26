@@ -1,0 +1,86 @@
+{__NOLAYOUT__}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>数据表字典</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="__ADMIN__/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body style="font-size: 15px; margin: 25px;">
+<div style="text-align: center"><h1>数据表字典</h1></div>
+<div class="row">
+    <div class="col-sm-6">
+        <?php foreach ($data1 as $k => $v){ ?>
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h2 style="margin-top: -5px;">{$k}</h2>
+                </div>
+                <div class="ibox-content">
+
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>字段名</th>
+                            <th>字段类型</th>
+                            <th>字段注释</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($v as $vv){ ?>
+                            <tr>
+                                <td>{$vv['name']}</td>
+                                <td>{$vv['type']}</td>
+                                <td>{$vv['comment']}</td>
+                            </tr>
+                        <?php }?>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        <?php }?>
+    </div>
+
+    <div class="col-sm-6">
+        <?php foreach ($data2 as $k => $v){ ?>
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h2 style="margin-top: -5px;">{$k}</h2>
+                </div>
+                <div class="ibox-content">
+
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>字段名</th>
+                            <th>字段类型</th>
+                            <th>字段注释</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($v as $vv){ ?>
+                            <tr>
+                                <td>{$vv['name']}</td>
+                                <td>{$vv['type']}</td>
+                                <td>{$vv['comment']}</td>
+                            </tr>
+                        <?php }?>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        <?php }?>
+    </div>
+</div>
+</body>
+
+</html>

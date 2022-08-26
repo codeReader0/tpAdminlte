@@ -1,0 +1,107 @@
+<div class="search">
+    <form class="form-inline">
+        <input type="text" value="{$req['auth_group_id']??''}" name="auth_group_id" placeholder="搜索ID" class="form-control">
+        <input class="btn btn-flat btn-primary m_10" type="submit" value="搜索">
+        <a {:auth_show_judge('AuthGroup/addAuthGroup')} class="btn btn-flat btn-success m_10 f_r" href="{:url('admin/AuthGroup/showAuthGroup')}"><i class="fa fa-plus m-r-10"></i>添 加</a>
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-bordered table-hover table-striped">
+                        <tbody>
+                        <tr>
+                            <th>ID</th>
+                            <th>角色名称</th>
+                            <th>角色描述</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                        <?php foreach ($data as $k => $v){ ?>
+                            <tr>
+                                <td>{$v['id']}</td>
+                                <td>{$v['title']}</td>
+                                <td>{$v['desc']}</td>
+                                <td>{$v['created_at']}</td>
+                                <td>
+                                    <a {:auth_show_judge('AuthGroup/editAuthGroup')} class="btn btn-flat btn-info btn-xs" href="{:url('admin/AuthGroup/showAuthGroup', ['id' => $v['id']])}"><i class="fa fa-edit"></i> 编辑</a>
+                                    <a {:auth_show_judge('AuthGroup/submitAssignAuth')} class="btn btn-flat btn-success btn-xs"  onclick="showAssignAuth({$v['id']})"><i class="fa fa-hand-rock-o"></i> 权限配置</a>
+                                    <a {:auth_show_judge('AuthGroup/delAuthGroup')} class="btn btn-flat btn-danger btn-xs" href="javascript:;" onclick="delAuthGroup({$v['id']})"><i class="fa fa-trash-o"></i> 删除</a>
+                                </td>
+                            </tr>
+                        <?php }?>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="text-align:center;font-size: 14px;"><?php echo $data->render();?></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function delAuthGroup(id)
+    {
+        //确认框
+        layer.confirm('确定删除吗？', {icon: 3, title:'提示'}, function(index) {
+            layer.close(index);
+            $.post('{:url("admin/AuthGroup/delAuthGroup")}', {id:id}, function (res) {
+                if (res.code == '200'){
+                    location.reload(true);
+                }
+                else {
+                    layer.msg(res.msg, {icon: 5, time: 3000});
+                }
+            });
+        });
+    }
+
+    function changeAuthGroup(id, field)
+    {
+        var value = 0;
+        if($('#'+field+id).is(':checked')) {
+            value = 0;
+        }
+        else{
+            value = 1;
+        }
+
+        //确认框
+        layer.confirm('确定操作吗', {icon: 3, title:'提示'}, function(index) {
+            layer.close(index);
+            $.post('{:url("admin/AuthGroup/changeAuthGroup")}', {"id": id, "value": value, "field": field}, function (res) {
+                if (res.code != 200) {
+                    if(value == 1){
+                        $('#'+field+id).prop('checked', false);
+                    }
+                    else {
+                        $('#'+field+id).prop('checked', true);
+                    }
+                    layer.msg(res.msg, {icon: 5, time: 2500, offset: '80px'});
+                }
+            });
+        }, function(index2) {
+            if(value == 1){
+                $('#'+field+id).prop('checked', false);
+            }
+            else {
+                $('#'+field+id).prop('checked', true);
+            }
+        });
+    }
+
+    function showAssignAuth(id)
+    {
+        var url = "{:url('admin/AuthGroup/showAssignAuth')}" + "?auth_group_id=" + id;
+
+        layer.open({
+            type: 2,
+            title: '分配权限',
+            area: ['50%', '85%'], //宽高
+            content: url
+        });
+    }
+</script>

@@ -1,0 +1,75 @@
+<div class="search">
+    <form class="form-inline">
+        <select id="admin_user_id" name="admin_user_id" class="form-control">
+            <option value="">搜索后台用户</option>
+            <?php foreach ($adminUsers as $v){ ?>
+                <option value="{$v['id']}" <?php if (!empty($req['admin_user_id']) && $req['admin_user_id'] == $v['id']) { echo 'selected'; } ?>>{$v['nickname']}</option>
+            <?php } ?>
+        </select>
+        <select id="auth_rule_id" style="padding: 0px 5px" name="auth_rule_id" class="form-control">
+            <option value="">搜索操作方法</option>
+            <?php foreach ($authRules as $v){ ?>
+                <option value="{$v['id']}" <?php if (!empty($req['auth_rule_id']) && $req['auth_rule_id'] == $v['id']) { echo 'selected'; } ?>>{$v['title']}</option>
+            <?php } ?>
+        </select>
+        <input placeholder="开始日期" autocomplete="off" value="{$req['start_date']??''}" name="start_date" class="form-control layer-date" id="start">
+        ～
+        <input placeholder="结束日期" autocomplete="off" value="{$req['end_date']??''}" name="end_date" class="form-control layer-date" id="end">
+        <!--<input placeholder="模糊搜索请求内容" autocomplete="off" value="{$req['request_body']??''}" name="request_body" class="form-control">
+        <input placeholder="模糊搜索响应内容" autocomplete="off" value="{$req['response_body']??''}" name="response_body" class="form-control">-->
+        <input class="btn btn-flat btn-primary m_10" type="submit" value="搜索">
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-bordered table-hover table-striped">
+                        <tbody>
+                        <tr>
+                            <th>后台用户</th>
+                            <th>操作方法</th>
+                            <th>请求内容</th>
+                            <th>响应内容</th>
+                            <th>操作时间</th>
+                        </tr>
+                        <?php foreach ($data as $k => $v){ ?>
+                            <tr>
+                                <td>{$v['admin_user']['nickname']}</td>
+                                <td>{$v['auth_rule']['title']}</td>
+                                <td>{$v['request_body']}</td>
+                                <td>{$v['response_body']}</td>
+                                <td>{$v['created_at']}</td>
+                            </tr>
+                        <?php }?>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="text-align:center;font-size: 14px;"><?php echo $data->render();?></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="__ADMIN__/plugins/layui/layer/laydate/laydate.js"></script>
+<script>
+    //日期范围限制
+    var start = {
+        elem: '#start',
+        format: 'YYYY-MM-DD hh:mm:ss',
+        choose: function (datas) {
+            end.min = datas; //开始日选好后，重置结束日的最小日期
+            end.start = datas //将结束日的初始值设定为开始日
+        }
+    };
+    var end = {
+        elem: '#end',
+        format: 'YYYY-MM-DD hh:mm:ss',
+        choose: function (datas) {
+            start.max = datas; //结束日选好后，重置开始日的最大日期
+        }
+    };
+    laydate(start);
+    laydate(end);
+</script>
