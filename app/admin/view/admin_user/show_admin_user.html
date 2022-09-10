@@ -82,7 +82,7 @@
     {
         $.post('<?php echo !empty($data) ? url("admin/AdminUser/editAdminUser") : url("admin/AdminUser/addAdminUser");?>', $('#commentForm').serialize(), function (res) {
             if (res.code == '200'){
-                window.location.href = document.referrer;
+                history.back(-1);
             }
             else {
                 layer.msg(res.msg, {icon: 5, time: 3000});

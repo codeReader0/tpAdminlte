@@ -57,7 +57,7 @@
     {
         $.post('<?php echo !empty($data) ? url("admin/AuthGroup/editAuthGroup") : url("admin/AuthGroup/addAuthGroup");?>', $('#commentForm').serialize(), function (res) {
             if (res.code == '200'){
-                window.location.href = document.referrer;
+                history.back(-1);
             }
             else {
                 layer.msg(res.msg, {icon: 5, time: 3000});
