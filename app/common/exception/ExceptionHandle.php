@@ -57,15 +57,20 @@ class ExceptionHandle extends Handle
         $module = app('http')->getName();
         if ($module == 'api') {
             $out = ['code' => 500, 'msg' => $e->getMessage(), 'data' => null];
+            $is_save_log = true;
             //验证错误
             if ($e instanceof ValidateException) {
                 $out['code'] = 10000;
+                $is_save_log = false;
             }
             //自定义异常错误
             if ($e instanceof ExitOutException) {
                 $msg = $e->getMessage();
                 $out = json_decode($msg, true);
+                $is_save_log = false;
             }
+            //保存错误日志
+            $this->saveErrorLog($e, $is_save_log);
             //跳转类的错误
             if ($e instanceof HttpResponseException) {
                 View::engine()->layout(false);
@@ -77,21 +82,41 @@ class ExceptionHandle extends Handle
         else {
             if ($request->isAjax()) {
                 $out = ['code' => 500, 'msg' => $e->getMessage(), 'data' => null];
+                $is_save_log = true;
                 //验证错误
                 if ($e instanceof ValidateException) {
                     $out['code'] = 10000;
+                    $is_save_log = false;
                 }
                 //自定义异常错误
                 if ($e instanceof ExitOutException) {
                     $msg = $e->getMessage();
                     $out = json_decode($msg, true);
+                    $is_save_log = false;
                 }
+                //保存错误日志
+                $this->saveErrorLog($e, $is_save_log);
+
                 return json($out);
             }
             else {
+                //保存错误日志
+                $this->saveErrorLog($e);
+
                 View::engine()->layout(false);
                 return parent::render($request, $e);
             }
         }
+    }
+
+    private function saveErrorLog($e, $is_save_log = true)
+    {
+        if ($is_save_log) {
+            $controller = request()->controller();
+            $action = request()->action();
+            $api = $controller . '/' . $action;
+            trace([$api.'接口错误' => $e->getTraceAsString(), '请求参数' => request()->post(), '响应msg' => $e->getMessage()], 'error');
+        }
+        return true;
     }
 }
