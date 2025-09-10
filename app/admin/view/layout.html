@@ -71,6 +71,115 @@
             content: url
         });
     }
+
+    function selectFile(field)
+    {
+        var files = document.getElementById(field).files;
+        if (files.length == 0) {
+            return;
+        }
+        var file = files[0]; //把上传的图片显示出来
+        var reader = new FileReader();
+        reader.readAsBinaryString(file);
+        reader.onload = function () {
+            let fileType = file.type
+            if (fileType.includes("image")) {
+                let result = document.getElementById('img_preview_' + field);
+                let src = "data:" + file.type + ";base64," + window.btoa(this.result);
+                result.innerHTML = '<img style="max-width: 300px;max-height: 300px;" src ="' + src + '"/>';
+            }
+            if (fileType.includes("video")) {
+                let result = document.getElementById('img_preview_' + field);
+                let src = "data:" + file.type + ";base64," + window.btoa(this.result);
+                result.innerHTML = '<video style="max-width: 300px;max-height: 300px;" src="' + src + '" controls="controls">您的浏览器不支持预览视频</video>';
+            }
+        }
+    }
+
+    function sendFile(files, key)
+    {
+        var formdata = new FormData();
+        formdata.append("img_url", files[0]);
+        $.ajax({
+            data : formdata,
+            type : "POST",
+            url  : '{:url("admin/Home/uploadSummernoteImg")}',
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(res) {
+                if (res.code == '200'){
+                    $('.' + key).summernote('insertImage', res.data.img_url, res.data.filename);
+                }
+                else {
+                    layer.msg(res.message, {icon: 5, time: 2500, offset: '80px'});
+                }
+            },
+            error:function(res){
+                layer.msg(res, {icon: 5, time: 2500, offset: '80px'});
+            }
+        });
+    }
+
+    // 上传视频文件
+    function sendVideoFile(files, key)
+    {
+        let size = files[0].size;
+        if((size / 1024 / 1024) > 80) {
+            layer.msg("视频大小不能超过80M", {icon: 5, time: 2500, offset: '80px'});
+            return false;
+        }
+
+        let formData = new FormData();
+        formData.append("img_url", files[0]);
+
+        $.ajax({
+            data : formData,
+            type : "POST",
+            url : '{:url("admin/Home/uploadSummernoteImg")}',    // 图片上传出来的url，返回的是图片上传后的路径，http格式
+            cache : false,
+            contentType : false,
+            processData : false,
+            dataType : "json",
+            success: function(res) {
+                if (res.code == '200') {
+                    $('.' + key + '_div .note-video-url').val(res.data.img_url);
+                } else {
+                    layer.msg(res.message, {icon: 5, time: 2500, offset: '80px'});
+                }
+                //去掉插入视频禁用按钮
+                $('.' + key + '_div .note-video-btn').removeAttr("disabled");
+            },
+            error:function(){
+                layer.msg("视频上传失败", {icon: 5, time: 2500, offset: '80px'});
+            }
+        });
+    }
+
+    //显示单张图片
+    function seePhoto(imgUrl)
+    {
+        let data = [];
+        let temp = {
+            alt: imgUrl,
+            pid: imgUrl,
+            src: imgUrl,
+            thumb: imgUrl
+        };
+        data.push(temp);
+        let photos = {
+            'title': "图片", //相册标题
+            'id': 1, //相册id
+            'start': 0, //初始显示的图片序号，默认0
+            'data': data
+        };
+        layer.photos({
+            photos: photos,
+            anim: 5,
+            closeBtn: true
+        });
+    }
 </script>
 </body>
 </html>
