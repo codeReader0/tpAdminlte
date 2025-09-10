@@ -43,7 +43,11 @@ class Curd extends Command
         //创建model
         $path = root_path().'/app/model';
         $file = $model.'.php';
-        $template = root_path().'/template/curd/model.txt';
+        if (file_exists($path.'/'.$file)) {
+            $template = $path.'/'.$file;
+        } else {
+            $template = root_path().'/template/curd/model.txt';
+        }
         $content = file_get_contents($template);
 
         $attr = '';
@@ -55,13 +59,30 @@ class Curd extends Command
                 $field = $v1['name'].'_map';
                 $configMap[$lineModel][$field] = $commentArr[1];
                 $this->buildMap($configMap);
-                $mapText = 'config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\']';
-                $attr = $attr."\n"."\n".'public function get'.$underName.'TextAttr($value, $data)'."\n".'{'."\n".'$map = '.$mapText.';'."\n".'return $map[$data[\''.$v1['name'].'\']];'."\n".'}';
+
+                if (strpos($content, 'public function get'.$underName.'TextAttr($value, $data)') === false) {
+                    $mapText = 'config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\']';
+                    $attr = $attr."\n"."\n".'public function get'.$underName.'TextAttr($value, $data)'."\n".'{'."\n".'$map = '.$mapText.';'."\n".'return $map[$data[\''.$v1['name'].'\']];'."\n".'}';
+                }
+            } else {
+                if (strpos($v1['name'], '_id') !== false) {
+                    $relationTable = str_replace('_id', '', $v1['name']);
+                    $relationMinModel = $this->convertUnderLine($relationTable, false);
+                    $relationModel = $this->convertUnderLine($relationTable);
+                    if (strpos($content, 'public function '.$relationMinModel.'()') === false) {
+                        $attr = $attr."\n"."\n".sprintf('public function %s()'."\n".'{'."\n".'return $this->belongsTo(%s::class);'."\n".'}', $relationMinModel, $relationModel);
+                    }
+                }
             }
         }
 
-        $search = ['{$model}', '{$attr}'];
-        $replace = [$model, $attr];
+        if (file_exists($path.'/'.$file)) {
+            $search = sprintf('class %s extends Model'."\n".'{', $model);
+            $replace = $search.$attr."\n";
+        } else {
+            $search = ['{$model}', '{$attr}'];
+            $replace = [$model, $attr];
+        }
         $content = str_replace($search, $replace, $content);
         $this->createPathFile($path, $file, $content);
 
@@ -70,17 +91,30 @@ class Curd extends Command
         $file = $model.'Controller.php';
         $template = root_path().'/template/curd/controller.txt';
         $content = file_get_contents($template);
-        $validate = $cond = '';
+        $validate = $cond = $select = $use = $addUpload = $editUpload = '';
         foreach ($tmp as $k1 => $v1){
             //搜索条件
             if (!empty($v1['index_key'])){
                 $condKey = $v1['name'] == 'id' ? $lineModel.'_id' : $v1['name'];
                 $cond = $cond.'if (isset($req[\''.$condKey.'\']) && $req[\''.$condKey.'\'] !== \'\'){'."\n".'$builder->where(\''.$v1['name'].'\', $req[\''.$condKey.'\']);'."\n".'}'."\n";
+
+                if (strpos($v1['name'], '_id') !== false) {
+                    $relationTable = str_replace('_id', '', $v1['name']);
+                    $relationModel = $this->convertUnderLine($relationTable);
+                    $select .= "\n".sprintf('$%s = %s::select();'."\n".'$this->assign(\'%s\', $%s);', $relationTable, $relationModel, $relationTable, $relationTable);
+                    $use .= "\n".sprintf('use app\model\%s;', $relationModel);
+                }
             }
 
             if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at', 'delete_time', 'created_at', 'updated_at', 'deleted_at'])) {
                 continue;
             }
+            if (strpos($v1['name'], 'img') !== false || strpos($v1['name'], 'cover') !== false || strpos($v1['name'], 'banner') !== false || strpos($v1['name'], 'avatar') !== false || strpos($v1['name'], 'logo') !== false || strpos($v1['name'], 'icon') !== false) {
+                $addUpload = $addUpload."\n".sprintf('$req[\'%s\'] = upload_file(\'%s\');', $v1['name'], $v1['name']);
+                $editUpload = $editUpload."\n".sprintf('$%s = upload_file(\'%s\', false);'."\n".'if (!empty($%s)) {'."\n".'$req[\'%s\'] = $%s;'."\n".'}', $v1['name'], $v1['name'], $v1['name'],  $v1['name'],  $v1['name']);
+                continue;
+            }
+
             $va = 'require';
             if ($v1['name'] == 'phone'){
                 $va .= '|mobile';
@@ -111,7 +145,7 @@ class Curd extends Command
 
             if (!empty($va)){
                 $commentArr = $this->convertComment($v1);
-                $comment = $commentArr[0];
+                $comment = str_replace('ID', '', $commentArr[0]);
                 if (empty($validate)){
                     $validate = "'".$v1['name']."|".$comment."' => '".$va."',";
                 }
@@ -120,8 +154,8 @@ class Curd extends Command
                 }
             }
         }
-        $search = ['{$model}', '{$minModel}', '{$validate}', '{$cond}'];
-        $replace = [$model, $minModel, $validate, $cond];
+        $search = ['{$model}', '{$minModel}', '{$validate}', '{$cond}', '{$select}', '{$use}', '{$addUpload}', '{$editUpload}'];
+        $replace = [$model, $minModel, $validate, $cond, $select, $use, $addUpload, $editUpload];
         $content = str_replace($search, $replace, $content);
         $this->createPathFile($path, $file, $content);
 
@@ -139,6 +173,9 @@ class Curd extends Command
             }
             $commentArr = $this->convertComment($v1);
             $comment = $commentArr[0];
+            if ($comment != 'ID') {
+                $comment = str_replace('ID', '', $comment);
+            }
             $ther = !empty($ther) ? $ther."\n" : '';
             $ther = $ther."<th>$comment</th>";
 
@@ -150,8 +187,17 @@ class Curd extends Command
                 $td = '<div class="switch">'."\n".'<div class="onoffswitch">'."\n".'<input type="checkbox" <?php echo $v[\''.$v1['name'].'\'] == 1 ? \'checked\' : \'\'; ?> class="onoffswitch-checkbox" id="'.$v1['name'].'{$v[\'id\']}">'."\n".'<label class="onoffswitch-label" for="'.$v1['name'].'{$v[\'id\']}" onclick="change'.$model.'({$v[\'id\']}, \''.$v1['name'].'\')">'."\n".'<span class="onoffswitch-inner"></span>'."\n".'<span class="onoffswitch-switch"></span>'."\n".'</label>'."\n".'</div>'."\n".'</div>';
             }
             else {
-                $key = $v1['name'] == 'create_time' ? 'create_date' : $v1['name'];
-                $td = '{$v[\''.$key.'\']}';
+                if (strpos($v1['name'], '_id') !== false) {
+                    $relationTable = str_replace('_id', '', $v1['name']);
+                    $td = '{$v[\''.$relationTable.'\'][\'name\']??\'\'}';
+                } else {
+                    if (strpos($v1['name'], 'img') !== false || strpos($v1['name'], 'cover') !== false || strpos($v1['name'], 'banner') !== false || strpos($v1['name'], 'avatar') !== false || strpos($v1['name'], 'logo') !== false || strpos($v1['name'], 'icon') !== false) {
+                        $td = sprintf('<img onclick="seePhoto(\'{$v["%s"]}\')" src="{$v[\'%s\']}" style="max-width: 80px;max-height: 80px;">', $v1['name'], $v1['name']);
+                    } else {
+                        $key = $v1['name'] == 'create_time' ? 'create_date' : $v1['name'];
+                        $td = '{$v[\''.$key.'\']}';
+                    }
+                }
             }
             $tbod = !empty($tbod) ? $tbod."\n" : '';
             $tbod = $tbod.'<td>'.$td.'</td>';
@@ -161,13 +207,27 @@ class Curd extends Command
                 $comment = $commentArr[0];
                 $input_type = $commentArr[2];
                 if ($input_type > 0){
-                    $option = '<option value="">搜索'.$comment.'</option>'."\n".'<?php foreach (config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\'] as $k => $v) { ?>'."\n".'<option <?php if (isset($req[\''.$v1['name'].'\']) && $req[\''.$v1['name'].'\'] == $k){echo \'selected = "selected"\';} ?> value="{$k}">{$v}</option>'."\n".'<?php } ?>';
+                    $option = '<option value="">搜索'.$comment.'</option>'."\n".'<?php foreach (config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\'] as $k => $v) { ?>'."\n".'<option <?php if (isset($req[\''.$v1['name'].'\']) && $req[\''.$v1['name'].'\'] === \'\'.$k){echo \'selected = "selected"\';} ?> value="{$k}">{$v}</option>'."\n".'<?php } ?>';
 
                     $search = $search."\n".'<select name="'.$v1['name'].'" class="form-control">'."\n".$option."\n".'</select>';
                 }
                 else {
-                    $condKey = $v1['name'] == 'id' ? $lineModel.'_id' : $v1['name'];
-                    $search = $search."\n".'<input type="text" value="{$req[\''.$condKey.'\']??\'\'}" name="'.$condKey.'" placeholder="搜索'.$comment.'" class="form-control">';
+                    if (strpos($v1['name'], '_id') !== false) {
+                        $comment = str_replace('ID', '', $comment);
+                        $relationTable = str_replace('_id', '', $v1['name']);
+                        $search = $search."\n".sprintf('<select name="%s" class="form-control">
+            <option value="">搜索%s</option>
+            <?php foreach ($%s as $k => $v) { ?>
+                <option <?php if (isset($req[\'%s\']) && $req[\'%s\'] == $v[\'id\']) {
+                    echo \'selected = "selected"\';
+                } ?> value="{$v[\'id\']}">{$v[\'name\']}
+                </option>
+            <?php } ?>
+        </select>', $v1['name'], $comment, $relationTable, $v1['name'], $v1['name']);
+                    } else {
+                        $condKey = $v1['name'] == 'id' ? $lineModel.'_id' : $v1['name'];
+                        $search = $search."\n".'<input type="text" value="{$req[\''.$condKey.'\']??\'\'}" name="'.$condKey.'" placeholder="搜索'.$comment.'" class="form-control">';
+                    }
                 }
             }
         }
@@ -181,7 +241,7 @@ class Curd extends Command
         $file = 'show_'.$table.'.html';
         $template = root_path().'/template/curd/show.html';
         $content = file_get_contents($template);
-        $ele = '';
+        $ele = $summernoteScript = $summernoteStart = $summernoteSub = '';
         foreach ($tmp as $k1 => $v1){
             if (in_array($v1['name'], ['update_time', 'create_time', 'id', 'create_at', 'update_at', 'created_at', 'updated_at'])) {
                 continue;
@@ -191,7 +251,7 @@ class Curd extends Command
             $input_type = $commentArr[2];
 
             if ($input_type == 1){
-                $select = '<?php foreach (config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\'] as $k => $v) { ?>'."\n".'<option <?php if(isset($data[\''.$v1['name'].'\']) && $data[\''.$v1['name'].'\'] == $k){ ?> selected="selected" <?php } ?> value="{$k}">{$v}</option>'."\n".'<?php } ?>';
+                $select = '<option value="">请选择'.$comment.'</option>'."\n".'<?php foreach (config(\'map.'.$lineModel.'\')[\''.$v1['name'].'_map\'] as $k => $v) { ?>'."\n".'<option <?php if(isset($data[\''.$v1['name'].'\']) && $data[\''.$v1['name'].'\'] == $k){ ?> selected="selected" <?php } ?> value="{$k}">{$v}</option>'."\n".'<?php } ?>';
                 $html = '<div class="row dd_input_group">'."\n".'<div class="form-group">'."\n".'<label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">'.$comment.'</label>'."\n".'<div class="col-xs-8 col-sm-6 col-md-4 col-lg-4">'."\n".'<select name="'.$v1['name'].'" class="form-control">'."\n".$select."\n".'</select>'."\n".'</div>'."\n".'<div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 dd_ts">*</div>'."\n".'</div>'."\n".'</div>';
             }
             elseif($input_type == 2) {
@@ -204,14 +264,87 @@ class Curd extends Command
                 $html = '<div class="row dd_input_group">'."\n".'<div class="form-group">'."\n".'<label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">'.$comment.'</label>'."\n".'<div class="col-xs-7 col-sm-6 col-md-4 col-lg-4">'."\n".'<div class="dd_radio_lable_left">'."\n".$radio.'</div>'."\n".'</div>'."\n".'<div class="col-xs-1 col-sm-4 col-md-6 col-lg-6 dd_ts"> *</div>'."\n".'</div>'."\n".'</div>';
             }
             else {
-                $html = '<div class="row dd_input_group">'."\n".'<div class="form-group">'."\n".'<label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">'.$comment.'</label>'."\n".'<div class="col-xs-7 col-sm-6 col-md-4 col-lg-4">'."\n".'<input type="text" name="'.$v1['name'].'" class="form-control" placeholder="请输入'.$comment.'" value="{$data[\''.$v1['name'].'\']??\'\'}">'."\n".'</div>'."\n".'<div class="col-xs-1 col-sm-4 col-md-6 col-lg-6 dd_ts">*</div>'."\n".'</div>'."\n".'</div>';
+                if (strpos($v1['name'], '_id') !== false) {
+                    $relationTable = str_replace('_id', '', $v1['name']);
+                    $comment = str_replace('ID', '', $comment);
+                    $html = sprintf('<div class="row dd_input_group">
+                    <div class="form-group">
+                        <label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">%s</label>
+                        <div class="col-xs-8 col-sm-6 col-md-4 col-lg-4">
+                            <select name="%s" class="form-control">
+                                <option value="">请选择%s</option>
+                                <?php if (!empty($%s)) { foreach ($%s as $k => $v) { ?>
+                                    <option <?php if (isset($data[\'%s\']) && $data[\'%s\'] == $v[\'id\']) { ?> selected="selected" <?php } ?>
+                                            value="{$v[\'id\']}">{$v[\'name\']}
+                                    </option>
+                                <?php } } ?>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-6 col-lg-6 dd_ts">*</div>
+                    </div>
+                </div>', $comment, $v1['name'], $comment, $relationTable, $relationTable, $v1['name'], $v1['name']);
+                } elseif (strpos($v1['name'], 'img') !== false || strpos($v1['name'], 'cover') !== false || strpos($v1['name'], 'banner') !== false || strpos($v1['name'], 'avatar') !== false || strpos($v1['name'], 'logo') !== false || strpos($v1['name'], 'icon') !== false) {
+                    $html = sprintf('<div class="row dd_input_group">
+                    <div class="form-group">
+                        <label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">%s</label>
+                        <div class="col-xs-7 col-sm-6 col-md-4 col-lg-4">
+                            <input type="file" class="form-control" name="%s" id="%s" accept="image/gif,image/jpeg,image/jpg,image/png" onchange="selectFile(\'%s\')">
+                            <div id="img_preview_%s">
+                                <?php if (!empty($data[\'%s\'])){ ?>
+                                    <img style="max-width: 300px;max-height: 300px;" src ="{$data[\'%s\']}"/>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>', $comment, $v1['name'], $v1['name'], $v1['name'], $v1['name'], $v1['name'], $v1['name']);
+                } else {
+                    if (strpos($v1['type'], 'text') !== false) {
+                        $html = sprintf('<div class="row dd_input_group">
+                    <div class="form-group">
+                        <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11 %s_div">
+                            <label class="text-lable">%s</label>
+                            <input type="hidden" name="%s" id="%s">
+                            <div class="summernote %s">
+                                <?php echo $data[\'%s\']??\'\';?>
+                            </div>
+                        </div>
+                        <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 dd_ts">*</div>
+                    </div>
+                </div>', $v1['name'], $comment, $v1['name'], $v1['name'], $v1['name'], $v1['name']);
+
+                        $summernoteScript = '<link href="__ADMIN__/plugins/summernote/summernote.css" rel="stylesheet">'."\n".'<script src="__ADMIN__/plugins/summernote/summernote.js"></script>'."\n".'<script src="__ADMIN__/plugins/summernote/lang/summernote-zh-CN.js"></script>';
+                        $summernoteStart = sprintf('$(\'.summernote\').summernote({
+            lang: \'zh-CN\',
+            minHeight: \'300px\',
+            callbacks: {
+                onImageUpload: function (files) {
+                    sendFile(files, \'%s\');
+                }
+            }
+        });', $v1['name']);
+                        $summernoteSub = $summernoteSub."\n".sprintf('let %s = $(".%s").summernote("code");'."\n".'$("#%s").val(%s);', $v1['name'], $v1['name'], $v1['name'], $v1['name']);
+                    } elseif ($v1['lenght'] >= 300) {
+                        $html = sprintf('<div class="row dd_input_group">
+                    <div class="form-group">
+                        <div class="col-xs-11 col-sm-8 col-md-10 col-lg-10">
+                            <label class="text-lable">%s</label>
+                            <textarea style="height: 200px;" class="form-control" name="%s" placeholder="请输入%s">{$data[\'%s\']??\'\'}</textarea>
+                        </div>
+                        <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 dd_ts">*</div>
+                    </div>
+                </div>', $comment, $v1['name'], $comment, $v1['name']);
+                    } else {
+                        $html = '<div class="row dd_input_group">'."\n".'<div class="form-group">'."\n".'<label class="col-xs-4 col-sm-2 col-md-2 col-lg-1 control-label dd_input_l">'.$comment.'</label>'."\n".'<div class="col-xs-7 col-sm-6 col-md-4 col-lg-4">'."\n".'<input type="text" name="'.$v1['name'].'" class="form-control" placeholder="请输入'.$comment.'" value="{$data[\''.$v1['name'].'\']??\'\'}">'."\n".'</div>'."\n".'<div class="col-xs-1 col-sm-4 col-md-6 col-lg-6 dd_ts">*</div>'."\n".'</div>'."\n".'</div>';
+                    }
+                }
             }
 
             $ele = !empty($ele) ? $ele."\n" : '';
             $ele = $ele.$html;
         }
-        $search = ['{$ele}', '{$model}', '{$minModel}'];
-        $replace = [$ele, $model, $minModel];
+
+        $search = ['{$ele}', '{$model}', '{$minModel}', '{$summernoteScript}', '{$summernoteStart}', '{$summernoteSub}'];
+        $replace = [$ele, $model, $minModel, $summernoteScript, $summernoteStart, $summernoteSub];
         $content = str_replace($search, $replace, $content);
         $this->createPathFile($path, $file, $content);
 

@@ -17,7 +17,7 @@
                     <div class="form-group">
                         <div class="col-xs-12 col-sm-8 col-md-6 col-lg-5 text-center">
                             <button type="button" class="btn btn-flat btn-primary" onclick="sub()">提 交</button>
-                            <button type="button" class="btn btn-flat btn-default" onclick="javascript:history.back(-1)">返 回</button>
+                            <a type="button" class="btn btn-flat btn-default" onclick="javascript:history.back(-1)">返 回</a>
                         </div>
                     </div>
                 </div>
@@ -26,6 +26,7 @@
     </div>
 </div>
 
+{$summernoteScript}
 <script>
     $(function(){
         var url = "{:url('admin/{$model}/{$minModel}List')}";
@@ -34,15 +35,33 @@
         var is_add = "<?php echo !empty($data) ? '0' : '1';?>";
         var headerTitle = is_add == "1" ? headerText + '-添加' : headerText + '-编辑';
         $('#content-header-title').text(headerTitle);
+
+        {$summernoteStart}
     });
 
     function sub()
     {
-        $.post('<?php echo !empty($data) ? url("admin/{$model}/edit{$model}") : url("admin/{$model}/add{$model}");?>', $('#commentForm').serialize(), function (res) {
-            if (res.code == '200'){
-                window.location.href = document.referrer;
-            }
-            else {
+        {$summernoteSub}
+
+        var formData = new FormData($('#commentForm')[0]);
+        $.ajax({
+            url: '<?php echo !empty($data) ? url("admin/{$model}/edit{$model}") : url("admin/{$model}/add{$model}");?>',
+            type: 'POST',
+            data: formData,
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                if (res.code == '200'){
+                    layer.msg('创建成功', {icon: 6, time: 2500, offset: '80px'});
+                    window.location.href = document.referrer;
+                }
+                else {
+                    layer.msg(res.msg, {icon: 5, time: 3000});
+                }
+            },
+            error: function (res) {
                 layer.msg(res.msg, {icon: 5, time: 3000});
             }
         });

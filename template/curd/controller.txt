@@ -2,7 +2,7 @@
 
 namespace app\admin\controller;
 
-use app\model\{$model};
+use app\model\{$model};{$use}
 
 class {$model}Controller extends AuthController
 {
@@ -13,6 +13,7 @@ class {$model}Controller extends AuthController
         $builder = {$model}::order('id', 'desc');
         {$cond}
         $data = $builder->paginate(['query' => $req]);
+        {$select}
 
         $this->assign('req', $req);
         $this->assign('data', $data);
@@ -27,6 +28,8 @@ class {$model}Controller extends AuthController
         if (!empty($req['id'])){
             $data = {$model}::where('id', $req['id'])->find();
         }
+        {$select}
+
         $this->assign('data', $data);
 
         return $this->fetch();
@@ -37,6 +40,7 @@ class {$model}Controller extends AuthController
         $req = $this->validate(request(), [
             {$validate}
         ]);
+        {$addUpload}
 
         {$model}::create($req);
 
@@ -49,6 +53,7 @@ class {$model}Controller extends AuthController
             'id' => 'require|number',
             {$validate}
         ]);
+        {$editUpload}
 
         {$model}::where('id', $req['id'])->update($req);
 
