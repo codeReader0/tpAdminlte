@@ -26,7 +26,9 @@
         "topthink/think-multi-app": "^1.0",
         "topthink/think-view": "^1.0",
         "liliuwei/thinkphp-jump": "^1.5",
-        "psr/container": "1.1.1"
+        "psr/container": "1.1.1",
+        "topthink/think-filesystem": "^2.0",
+        "guzzlehttp/guzzle": "^7.9"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.2",
